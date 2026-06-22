@@ -3,10 +3,11 @@ import { useGoalsWithProgress } from '@/db/time-tracking/queries/goalQueries'
 import type { Goal } from '@/db/types'
 import { useTranslations } from '@/i18n'
 import { ArrowLeft, Inbox, Plus, Target } from 'lucide-react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import { GoalCard } from '../components/GoalCard'
-import { GoalEditModal } from '../components/GoalEditModal'
+
+const GoalEditModal = lazy(() => import('../components/GoalEditModal').then(m => ({ default: m.GoalEditModal })))
 
 export function GoalsPage() {
     const t = useTranslations(['common', 'tracker'])
@@ -14,11 +15,13 @@ export function GoalsPage() {
     const activities = useActiveActivities()
     const [editingGoal, setEditingGoal] = useState<Goal | null>(null)
     const [modalOpen, setModalOpen] = useState(false)
+    const [hasModalLoaded, setHasModalLoaded] = useState(false)
 
     const activityMap = useMemo(() => new Map(activities.map(activity => [activity.id, activity])), [activities])
 
     const handleNew = useCallback(() => {
         setEditingGoal(null)
+        setHasModalLoaded(true)
         setModalOpen(true)
     }, [])
 
@@ -26,6 +29,7 @@ export function GoalsPage() {
         const matched = goalsWithProgress.find(item => item.goal.id === goalId)
         if (matched) {
             setEditingGoal(matched.goal)
+            setHasModalLoaded(true)
             setModalOpen(true)
         }
     }, [goalsWithProgress])
@@ -89,7 +93,11 @@ export function GoalsPage() {
                 </div>
             )}
 
-            <GoalEditModal goal={editingGoal} isOpen={modalOpen} onClose={handleClose} />
+            {hasModalLoaded && (
+                <Suspense fallback={null}>
+                    <GoalEditModal goal={editingGoal} isOpen={modalOpen} onClose={handleClose} />
+                </Suspense>
+            )}
         </div>
     )
 }

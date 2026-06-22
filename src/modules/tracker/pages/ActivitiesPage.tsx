@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ActivitiesPage — Aktivite Yönetimi (Aşama 5 — Tam İmplementasyon)
  *
  * Aktivite listesi, oluşturma/düzenleme, arşivleme.
@@ -17,9 +17,10 @@ import { useTranslations } from '@/i18n'
 import { EntityIcon, useToast } from '@/shared/components'
 import { clsx } from 'clsx'
 import { Archive, ArrowLeft, Inbox, Layers, Plus, RotateCcw, Trash2 } from 'lucide-react'
-import { useCallback, useMemo, useState } from 'react'
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ActivityEditModal } from '../components/ActivityEditModal'
+
+const ActivityEditModal = lazy(() => import('../components/ActivityEditModal').then(m => ({ default: m.ActivityEditModal })))
 
 function getErrorMessage(error: unknown, fallback: string) {
     return error instanceof Error && error.message.trim() ? error.message : fallback
@@ -35,6 +36,7 @@ export function ActivitiesPage() {
     const [showArchived, setShowArchived] = useState(false)
     const [editingActivity, setEditingActivity] = useState<Activity | null>(null)
     const [modalOpen, setModalOpen] = useState(false)
+    const [hasModalLoaded, setHasModalLoaded] = useState(false)
 
     const categoryMap = useMemo(
         () => new Map(categories.map(c => [c.id, c])),
@@ -45,11 +47,13 @@ export function ActivitiesPage() {
 
     const handleNew = useCallback(() => {
         setEditingActivity(null)
+        setHasModalLoaded(true)
         setModalOpen(true)
     }, [])
 
     const handleEdit = useCallback((activity: Activity) => {
         setEditingActivity(activity)
+        setHasModalLoaded(true)
         setModalOpen(true)
     }, [])
 
@@ -212,7 +216,11 @@ export function ActivitiesPage() {
                 </div>
             )}
 
-            <ActivityEditModal activity={editingActivity} isOpen={modalOpen} onClose={handleClose} />
+            {hasModalLoaded && (
+                <Suspense fallback={null}>
+                    <ActivityEditModal activity={editingActivity} isOpen={modalOpen} onClose={handleClose} />
+                </Suspense>
+            )}
         </div>
     )
 }

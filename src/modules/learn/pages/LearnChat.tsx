@@ -37,7 +37,10 @@ import {
   Camera
 } from 'lucide-react'
 import { LatexRenderer } from '../components/LatexRenderer'
-import { Whiteboard, WhiteboardElement } from '../components/Whiteboard'
+import { lazy, Suspense } from 'react'
+import type { WhiteboardElement } from '../components/Whiteboard'
+
+const Whiteboard = lazy(() => import('../components/Whiteboard').then(m => ({ default: m.Whiteboard })))
 import { scheduleFSRS, SRCard } from '../lib/fsrs'
 import { calculateMasteryScore } from '../lib/mastery'
 import { splitIntoChunksWithBoundaries, Chunk, ChunkMetadata } from '../lib/chunking'
@@ -1586,7 +1589,9 @@ export function LearnChat() {
                     <p className="text-2xs text-[var(--text-secondary)] mt-0.5">{dict.whiteboardDesc}</p>
                   </div>
                   <div className="flex-1 min-h-[380px]">
-                    <Whiteboard onAttachImage={handleAttachWhiteboardImage} agentElements={agentElements} />
+                    <Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-text-muted">Loading Whiteboard...</div>}>
+                        <Whiteboard onAttachImage={handleAttachWhiteboardImage} agentElements={agentElements} />
+                    </Suspense>
                   </div>
                 </div>
               )}

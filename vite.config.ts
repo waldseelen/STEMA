@@ -214,9 +214,12 @@ export default defineConfig({
                     }
                     if (id.includes('node_modules/@heroicons/') ||
                         id.includes('node_modules/@headlessui/') ||
+                        id.includes('node_modules/lucide-react/') ||
                         id.includes('node_modules/clsx/')) {
                         return 'ui-vendor'
                     }
+                    if (id.includes('node_modules/@excalidraw/')) return 'excalidraw'
+                    if (id.includes('node_modules/reactflow/') || id.includes('node_modules/@xyflow/')) return 'reactflow'
                     if (id.includes('node_modules/dexie/') ||
                         id.includes('node_modules/dexie-react-hooks/')) {
                         return 'db-vendor'

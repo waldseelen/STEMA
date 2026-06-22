@@ -1,0 +1,98 @@
+{
+    "title": "Takvim",
+    "subtitle": "Sınavlar ve etkinlikler",
+    "event": {
+        "title": "Etkinlik",
+        "name": "Başlık",
+        "date": "Tarih",
+        "course": "Ders",
+        "description": "Açıklama",
+        "color": "Renk",
+        "type": "Tip",
+        "create": "Yeni Etkinlik",
+        "edit": "Düzenle",
+        "delete": "Sil",
+        "deleteConfirm": "Bu etkinliği silmek istediğinizden emin misiniz?"
+    },
+    "eventType": {
+        "exam": "Sınav",
+        "event": "Etkinlik"
+    },
+    "navigation": {
+        "today": "Bugün",
+        "previousMonth": "Önceki ay",
+        "nextMonth": "Sonraki ay"
+    },
+    "sections": {
+        "todayEvents": "Bugünün Etkinlikleri",
+        "upcomingExams": "Yaklaşan Sınavlar",
+        "thisDay": "Bu Günün Kayıtları"
+    },
+    "empty": {
+        "noEventsToday": "Bugün için kayıt yok",
+        "noEventsDescription": "Bugün bir etkinlik ekleyebilirsiniz.",
+        "noUpcomingExams": "Yaklaşan sınav yok",
+        "noUpcomingExamsDescription": "Sınav eklediğinizde burada görünür."
+    },
+    "dayNames": {
+        "short": [
+            "Paz",
+            "Pzt",
+            "Sal",
+            "Çar",
+            "Per",
+            "Cum",
+            "Cmt"
+        ],
+        "long": [
+            "Pazar",
+            "Pazartesi",
+            "Salı",
+            "Çarşamba",
+            "Perşembe",
+            "Cuma",
+            "Cumartesi"
+        ]
+    },
+    "monthNames": {
+        "short": [
+            "Oca",
+            "Şub",
+            "Mar",
+            "Nis",
+            "May",
+            "Haz",
+            "Tem",
+            "Ağu",
+            "Eyl",
+            "Eki",
+            "Kas",
+            "Ara"
+        ],
+        "long": [
+            "Ocak",
+            "Şubat",
+            "Mart",
+            "Nisan",
+            "Mayıs",
+            "Haziran",
+            "Temmuz",
+            "Ağustos",
+            "Eylül",
+            "Ekim",
+            "Kasım",
+            "Aralık"
+        ]
+    },
+    "validation": {
+        "titleRequired": "Başlık gerekli",
+        "dateRequired": "Tarih gerekli",
+        "courseRequiredForExam": "Sınav için ders seçmelisiniz"
+    },
+    "daysUntil": {
+        "today": "Bugün",
+        "tomorrow": "Yarın",
+        "days": "{{count}} gün"
+    },
+    "selectCourse": "Ders seç (opsiyonel)"
+}

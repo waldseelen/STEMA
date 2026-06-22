@@ -1,0 +1,120 @@
+{
+    "title": "Habits",
+    "subtitle": "Your daily routines",
+    "habit": {
+        "title": "Habit",
+        "name": "Habit Name",
+        "description": "Description",
+        "emoji": "Emoji",
+        "color": "Color",
+        "type": "Type",
+        "target": "Target",
+        "unit": "Unit",
+        "create": "New Habit",
+        "edit": "Edit",
+        "delete": "Delete",
+        "archive": "Archive",
+        "unarchive": "Unarchive"
+    },
+    "habitType": {
+        "boolean": "Done / Not Done",
+        "numeric": "Numeric"
+    },
+    "frequency": {
+        "title": "Frequency",
+        "daily": "Every day",
+        "weekly": "Per week",
+        "custom": "Custom",
+        "timesPerWeek": "{{count}} times a week",
+        "specificDays": "Specific days",
+        "everyXDays": "Every {{count}} days"
+    },
+    "streak": {
+        "title": "Streak",
+        "current": "Current Streak",
+        "longest": "Longest Streak",
+        "days": "{{count}} days"
+    },
+    "progress": {
+        "weekly": "Weekly Progress",
+        "done": "{{done}}/{{target}}"
+    },
+    "sections": {
+        "today": "Today",
+        "completed": "Completed",
+        "archived": "Archived"
+    },
+    "empty": {
+        "noHabits": "No habits yet",
+        "noHabitsDescription": "Add habits to track your daily routines.",
+        "noTodayHabits": "No habits for today",
+        "allCompleted": "All habits completed! 🎉"
+    },
+    "actions": {
+        "markDone": "Mark as completed",
+        "markUndone": "Remove mark",
+        "skip": "Skip",
+        "log": "Log"
+    },
+    "frequencyType": {
+        "weeklyTarget": "Weekly Target",
+        "specificDays": "Specific Days",
+        "everyXDays": "Every X Days"
+    },
+    "weekdaysShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    "dashboard": {
+        "todayCompleted": "Today: {{completed}}/{{total}} completed",
+        "showActive": "Active",
+        "showArchived": "Archive",
+        "addHabit": "Add Habit",
+        "todayProgress": "Today's Progress",
+        "emptyArchived": "No habits in archive",
+        "emptyDescription": "Track your daily habits",
+        "addFirstHabit": "Add First Habit",
+        "notDueToday": "Not due today",
+        "editMenu": "Edit",
+        "weeklyTargetQuestion": "How many times a week?",
+        "weeklyTargetValue": "{{count}} days/week",
+        "daysLabel": "Days",
+        "everyXDaysQuestion": "Every how many days?",
+        "deleteTitle": "Delete Habit",
+        "deleteConfirm": "Are you sure you want to delete this habit and all of its history?"
+    },
+    "form": {
+        "titlePlaceholder": "e.g. Read a Book",
+        "descriptionOptional": "Description (Optional)",
+        "descriptionPlaceholder": "A short note about the habit...",
+        "typeLabel": "Type",
+        "booleanType": "Checkbox (Done / Not Done)",
+        "numericType": "Numeric (Target amount)",
+        "dailyTarget": "Daily Target",
+        "unitPlaceholder": "e.g. pages, glasses"
+    },
+    "detail": {
+        "notFound": "Habit not found",
+        "backToHabits": "Back to Habits",
+        "currentStreak": "Current Streak",
+        "longestStreak": "Longest Streak",
+        "totalCompletions": "Total Completions",
+        "successRate": "Success Rate",
+        "activityMap": "Activity Map",
+        "lastNMonths": "Last {{count}} months",
+        "notDone": "Not done",
+        "done": "Done",
+        "todayCompleted": "Completed! 🎉",
+        "todayClickToComplete": "Click to complete",
+        "weeklyTrend": "Weekly Trend",
+        "editHabit": "Edit Habit",
+        "deleteHabit": "Delete Habit?",
+        "deleteConfirmMessage": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+        "confirmDelete": "Yes, Delete"
+    },
+    "toast": {
+        "nameRequired": "Habit name is required",
+        "updated": "Habit updated",
+        "created": "Habit added",
+        "deleted": "Habit deleted",
+        "restored": "Habit restored",
+        "archived": "Habit archived"
+    }
+}

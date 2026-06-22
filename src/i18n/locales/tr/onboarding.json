@@ -1,0 +1,122 @@
+{
+    "onboarding": {
+        "progress": "{{current}} / {{total}}",
+        "skip": "Geç",
+        "complete": "Tamamla",
+        "saving": "Kaydediliyor...",
+        "begin": "Başla",
+        "gotIt": "Anladım",
+        "start": "Başlayalım",
+        "locatingTitle": "Hedef alan görünür alana getiriliyor",
+        "locatingDescription": "Overlay ilgili bölümü güvenli biçimde bulup ekrana taşımaya çalışıyor.",
+        "fallbackTitle": "Bu adım generic açıklama ile sürüyor",
+        "fallbackDescription": "Hedef element şu an bulunamadı. Adım yine açıklamasıyla devam eder; istersen geri dönüp yeniden deneyebilirsin.",
+        "saveErrorTitle": "Onboarding durumu kaydedilemedi",
+        "saveErrorInline": "Tur durumu şu an kaydedilemedi. Tekrar deneyebilir veya bu ekranı kapatıp daha sonra geri dönebilirsin.",
+        "stepAnnouncement": "{{current}} / {{total}}. {{title}}",
+        "missingTarget": "Bu adımın hedefi şu an görünmüyor. Akış güvenli fallback ile devam ediyor.",
+        "toastCompleted": "Onboarding tamamlandı",
+        "toastSkipped": "Onboarding kapatıldı",
+        "toastError": "Onboarding durumu kaydedilemedi. Tekrar dene.",
+        "routeChangedToast": "Ekran değiştiği için onboarding güvenli biçimde kapatıldı.",
+        "routeChangedAnnouncement": "Onboarding ekran değiştiği için duraklatıldı. Planner'a dönünce tekrar açılabilir.",
+        "moduleCards": {
+            "planner": {
+                "title": "Planner",
+                "description": "Derslerin, görevlerin ve alışkanlıklarının merkezi."
+            },
+            "tracker": {
+                "title": "Tracker",
+                "description": "Oturum bazlı zaman takibi ve hedef odaklı raporlar."
+            },
+            "habits": {
+                "title": "Habits",
+                "description": "Günlük alışkanlık takibi ve streak sistemi."
+            }
+        },
+        "usageOptions": {
+            "student": {
+                "title": "Öğrenci",
+                "description": "Ders, ödev ve sınav odaklı kullanıyorum."
+            },
+            "working": {
+                "title": "Çalışan",
+                "description": "Proje, görev ve iş akışı odaklı kullanıyorum."
+            },
+            "both": {
+                "title": "Her ikisi",
+                "description": "Hem okul hem iş hayatı için kullanıyorum."
+            }
+        },
+        "steps": {
+            "welcome": {
+                "title": "Planner ana görünümüne hoş geldin",
+                "description": "Bu tur seni PLAN.EX'in ana bloklarına götürecek. İstersen istediğin zaman atlayabilirsin."
+            },
+            "modules": {
+                "title": "Hangi modülleri kullanacaksın?",
+                "description": "Sana en uygun modülleri seç. Daha sonra ayarlardan değiştirebilirsin."
+            },
+            "planner": {
+                "title": "Planner — derslerin, görevlerin ve habitların merkezi",
+                "description": "Buradan derslerin, ödevlerin ve alışkanlıklarının tamamını yönetebilirsin."
+            },
+            "tracker": {
+                "title": "Tracker — zamanını takip et",
+                "description": "Oturum başlatabilir, aktivitelerini izleyebilir ve hedeflerine göre ilerlemenizi görebilirsin."
+            },
+            "habits": {
+                "title": "Bugünkü habits alanı",
+                "description": "Due olan alışkanlıkları bu bloktan işaretleyebilir ve streak sağlığını hızlıca kontrol edebilirsin."
+            },
+            "calendar": {
+                "title": "Takvim görünümüne geçiş",
+                "description": "Etkinlik, sınav ve tarih yoğunluğunu takvim ekranında izlersin; planner akışı buraya hızlı bağlanır."
+            },
+            "goals": {
+                "title": "Hızlı aksiyon menüsü",
+                "description": "Yeni görev, habit işaretleme veya tracker'a geçiş gibi sık aksiyonları buradan başlatabilirsin."
+            },
+            "usage": {
+                "title": "Nasıl kullanacaksın?",
+                "description": "Kullanım profilini belirle, sana en uygun deneyimi sunabilelim."
+            },
+            "command": {
+                "title": "Komut çubuğu ile hızlı başla",
+                "description": "Görev, ders ve kayıt araması yapabilir; kısa yollarla tracker veya dış arama aksiyonlarına geçebilirsin."
+            },
+            "overview": {
+                "title": "Planner ana görünümüne hoş geldin",
+                "description": "Bu ekran bugünün odağını, ilerleme özetini ve hızlı karar vereceğin ana blokları toplar."
+            },
+            "navigation": {
+                "title": "Header ve genel navigasyon burada",
+                "description": "Üst bar ve çevresindeki kontroller komut araması, hızlı geçiş ve günlük shell navigasyonu için ana noktadır."
+            },
+            "quickActions": {
+                "title": "Hızlı aksiyon menüsü",
+                "description": "Yeni görev, habit işaretleme veya tracker'a geçiş gibi sık aksiyonları buradan başlatabilirsin."
+            },
+            "calendar_legacy": {
+                "title": "Takvim görünümüne geçiş",
+                "description": "Etkinlik, sınav ve tarih yoğunluğunu takvim ekranında izlersin; planner akışı buraya hızlı bağlanır."
+            },
+            "habits_legacy": {
+                "title": "Bugünkü habits alanı",
+                "description": "Due olan alışkanlıkları bu bloktan işaretleyebilir ve streak sağlığını hızlıca kontrol edebilirsin."
+            },
+            "tracker_legacy": {
+                "title": "Tracker modülü erişimi",
+                "description": "Zaman takibi, session kayıtları ve hedefler tracker alanında yaşar; burada hızlı geçiş noktası var."
+            },
+            "preferences": {
+                "title": "Tema ve dil anlık değişir",
+                "description": "Tema ve dil kontrolleri shell üzerinde görünür. Yaptığın değişiklikler profil tercihlerinle senkron tutulur."
+            },
+            "closing": {
+                "title": "Ayarlar ve tekrar erişim bilgisi",
+                "description": "Tur burada biter. Ayarlardan profile, onboarding replay ve diğer kişisel tercihlere daha sonra tekrar dönebilirsin."
+            }
+        }
+    }
+}

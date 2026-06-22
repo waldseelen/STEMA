@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.cache/
+
+# Test files
+coverage/
+playwright-report/
+test-results/
+*.test.ts
+*.test.tsx
+tests/
+
+# Development
+.env.local
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

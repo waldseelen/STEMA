@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd \"C:\\\\Users\\\\bugra\\\\Projects\\\\PLAN-EX\" && npm run typecheck 2>&1 | head -60)",
+      "Bash(cd \"C:\\\\Users\\\\bugra\\\\Projects\\\\PLAN-EX\" && npm run lint 2>&1 | tail -20)",
+      "mcp__8c2a63a4-1bef-4332-81cf-af42f7968d7c__list_projects",
+      "mcp__8c2a63a4-1bef-4332-81cf-af42f7968d7c__list_tables",
+      "mcp__8c2a63a4-1bef-4332-81cf-af42f7968d7c__apply_migration",
+      "Bash(grep -r \"csrf\\\\|x-csrf\\\\|CSRF\" --include=*.ts --include=*.tsx)",
+      "Bash(grep -r \"fetch\\\\|\\\\.post\\\\|\\\\.get\\\\|\\\\.put\" src/lib/cloud/*.ts)"
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+export const PUBLIC_LANDING_ROUTE = '/'
+export const AUTH_CALLBACK_ROUTE = '/auth/callback'
+export const PROFILE_COMPLETION_ROUTE = '/auth/profile-completion'
+export const LEGACY_PROFILE_COMPLETION_ROUTE = '/auth/profile-setup'
+export const AUTHENTICATED_HOME_ROUTE = '/planner'

@@ -1,0 +1,151 @@
+{
+    "landing": {
+        "badge": "Public Landing",
+        "pageTitle": "PLAN.EX Entry",
+        "pageAnnouncement": "PLAN.EX entry surface is ready.",
+        "heroEyebrow": "One login, cleaner start",
+        "tagline": "PLAN.EX brings study planning, tasks, and working rhythm into one flow.",
+        "subtitle": "Planner, tasks, calendar, habits, tracker, and statistics work on the same surface. After passwordless sign-in, a short profile setup and guided onboarding inside the application take you directly into the flow.",
+        "ctaEyebrow": "60-second start",
+        "ctaTitle": "Sign in without a password, finish the short setup, and move straight into planner rhythm.",
+        "ctaDescription": "Google and GitHub stand at the same level. Choose the provider you already use; the product flow stays the same.",
+        "ctaTrustBadge": "Safe redirect",
+        "ctaGroupLabel": "Continue with OAuth",
+        "equalTrustNote": "Both buttons lead into the same secure onboarding and planner flow.",
+        "providers": {
+            "google": "Continue with Google",
+            "github": "Continue with GitHub",
+            "email": "Continue with Email",
+            "googleHint": "Fast, familiar OAuth flow",
+            "githubHint": "The same safe flow with your developer account",
+            "emailHint": "Sign up or sign in with your email address",
+            "lastUsed": "Last used"
+        },
+        "heroMeta": {
+            "modules": "6 clear modules in one rhythm",
+            "profile": "Profile setup stays short and requirement-focused",
+            "onboarding": "Onboarding runs inside the application interface"
+        },
+        "heroSignals": {
+            "unified": {
+                "kicker": "One surface",
+                "title": "Plan, tasks, and rhythm live together",
+                "desc": "Build your daily academic system inside one shell without moving across separate tools."
+            },
+            "entry": {
+                "kicker": "Short entry",
+                "title": "Fast and secure OAuth entry",
+                "desc": "The first step is only provider choice and safe redirection."
+            },
+            "real": {
+                "kicker": "Integrated onboarding",
+                "title": "Onboarding stays inside the application",
+                "desc": "The first guide opens on the working interface rather than a separate marketing screen."
+            }
+        },
+        "ctaFlow": {
+            "entry": "OAuth",
+            "profile": "Profile",
+            "planner": "Planner"
+        },
+        "ctaStats": {
+            "shell": {
+                "value": "1 shell",
+                "label": "Landing, setup, and work all open with the same product language."
+            },
+            "providers": {
+                "value": "2 providers",
+                "label": "Google and GitHub keep equal hierarchy and lead to the same start."
+            },
+            "onboarding": {
+                "value": "Integrated onboarding",
+                "label": "The first guide appears inside the application interface."
+            }
+        },
+        "sections": {
+            "features": {
+                "kicker": "Core Features",
+                "title": "One productivity surface, six clear modules",
+                "subtitle": "These cards explain the product directly. Planner, tasks, calendar, habits, tracker, and statistics stay readable in one visual language."
+            },
+            "workflow": {
+                "kicker": "Workflow",
+                "title": "The first run stays coherent from entry to planner",
+                "subtitle": "Landing, short profile setup, and onboarding remain part of the same product sequence."
+            },
+            "future": {
+                "kicker": "Roadmap",
+                "title": "Next modules stay marked on the roadmap",
+                "subtitle": "These cards are informational roadmap markers for areas that may open later.",
+                "badge": "Paid Feature Soon"
+            }
+        },
+        "workflow": {
+            "entry": {
+                "title": "Clean and secure OAuth entry",
+                "desc": "In the first second, the user only chooses a provider instead of facing an unnecessary form barrier.",
+                "badge": "Step 1"
+            },
+            "profile": {
+                "title": "Short profile setup",
+                "desc": "Required fields are clear at first glance. Student-only fields appear only when the relevant choice is made.",
+                "badge": "Step 2"
+            },
+            "onboarding": {
+                "title": "Guided start inside the application",
+                "desc": "The onboarding overlay runs on the application interface instead of a detached marketing page.",
+                "badge": "Step 3"
+            }
+        },
+        "features": {
+            "planner": {
+                "title": "Planner",
+                "desc": "Course structure, units, and academic planning stay anchored in one core area.",
+                "badge": "Core"
+            },
+            "tasks": {
+                "title": "Tasks",
+                "desc": "Personal and course tasks stay in one readable list with quick entry and active work visibility.",
+                "badge": "Everyday"
+            },
+            "calendar": {
+                "title": "Calendar",
+                "desc": "Exams, events, and deadlines stay visible in the same calendar rhythm.",
+                "badge": "Date View"
+            },
+            "habits": {
+                "title": "Habits",
+                "desc": "Today's routines, streak tracking, and quick marking stay compact and readable.",
+                "badge": "Daily"
+            },
+            "tracker": {
+                "title": "Tracker",
+                "desc": "Time tracking and study sessions feed back into the same daily productivity flow.",
+                "badge": "Focus"
+            },
+            "statistics": {
+                "title": "Statistics",
+                "desc": "Planner and tracker data merge into readable summaries of your working rhythm.",
+                "badge": "Overview"
+            }
+        },
+        "future": {
+            "focus": {
+                "title": "Deep focus packs",
+                "desc": "Advanced pomodoro and focus flows can later open as paid modules."
+            },
+            "insights": {
+                "title": "Deeper insight panels",
+                "desc": "Long-range comparisons and advanced reporting can arrive later as an extra layer."
+            },
+            "cloud": {
+                "title": "Cloud history and snapshots",
+                "desc": "Extra backup history and automation appear as roadmap markers, not hard upsell."
+            }
+        },
+        "footer": {
+            "caption": "One CTA lane, short setup, and a calmer first impression.",
+            "signature": "2026 made with love ❤️"
+        }
+    }
+}

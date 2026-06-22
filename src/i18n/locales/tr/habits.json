@@ -1,0 +1,120 @@
+{
+    "title": "Alışkanlıklar",
+    "subtitle": "Günlük rutinlerin",
+    "habit": {
+        "title": "Alışkanlık",
+        "name": "Alışkanlık Adı",
+        "description": "Açıklama",
+        "emoji": "Emoji",
+        "color": "Renk",
+        "type": "Tip",
+        "target": "Hedef",
+        "unit": "Birim",
+        "create": "Yeni Alışkanlık",
+        "edit": "Düzenle",
+        "delete": "Sil",
+        "archive": "Arşivle",
+        "unarchive": "Arşivden Çıkar"
+    },
+    "habitType": {
+        "boolean": "Yapıldı/Yapılmadı",
+        "numeric": "Sayısal"
+    },
+    "frequency": {
+        "title": "Sıklık",
+        "daily": "Her gün",
+        "weekly": "Haftada",
+        "custom": "Özel",
+        "timesPerWeek": "Haftada {{count}} kez",
+        "specificDays": "Belirli günler",
+        "everyXDays": "Her {{count}} günde bir"
+    },
+    "streak": {
+        "title": "Seri",
+        "current": "Mevcut Seri",
+        "longest": "En Uzun Seri",
+        "days": "{{count}} gün"
+    },
+    "progress": {
+        "weekly": "Haftalık İlerleme",
+        "done": "{{done}}/{{target}}"
+    },
+    "sections": {
+        "today": "Bugün",
+        "completed": "Tamamlanan",
+        "archived": "Arşivlenen"
+    },
+    "empty": {
+        "noHabits": "Henüz alışkanlık eklenmedi",
+        "noHabitsDescription": "Günlük rutinlerinizi takip etmek için alışkanlık ekleyin.",
+        "noTodayHabits": "Bugün için alışkanlık yok",
+        "allCompleted": "Tüm alışkanlıklar tamamlandı! 🎉"
+    },
+    "actions": {
+        "markDone": "Tamamlandı olarak işaretle",
+        "markUndone": "İşareti kaldır",
+        "skip": "Atla",
+        "log": "Kaydet"
+    },
+    "frequencyType": {
+        "weeklyTarget": "Haftalık Hedef",
+        "specificDays": "Belirli Günler",
+        "everyXDays": "Her X Günde Bir"
+    },
+    "weekdaysShort": ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"],
+    "dashboard": {
+        "todayCompleted": "Bugün: {{completed}}/{{total}} tamamlandı",
+        "showActive": "Aktifler",
+        "showArchived": "Arşiv",
+        "addHabit": "Alışkanlık Ekle",
+        "todayProgress": "Bugünkü İlerleme",
+        "emptyArchived": "Arşivde alışkanlık yok",
+        "emptyDescription": "Günlük alışkanlıklarınızı takip edin",
+        "addFirstHabit": "İlk Alışkanlığı Ekle",
+        "notDueToday": "Bugün yok",
+        "editMenu": "Düzenle",
+        "weeklyTargetQuestion": "Haftada kaç kez?",
+        "weeklyTargetValue": "{{count}} gün/hafta",
+        "daysLabel": "Günler",
+        "everyXDaysQuestion": "Kaç günde bir?",
+        "deleteTitle": "Alışkanlığı Sil",
+        "deleteConfirm": "Bu alışkanlığı ve tüm geçmişini silmek istediğinize emin misiniz?"
+    },
+    "form": {
+        "titlePlaceholder": "Örn: Kitap Oku",
+        "descriptionOptional": "Açıklama (Opsiyonel)",
+        "descriptionPlaceholder": "Alışkanlık hakkında kısa not...",
+        "typeLabel": "Tür",
+        "booleanType": "Onay Kutusu (Yaptım/Yapmadım)",
+        "numericType": "Sayısal (Hedef miktar)",
+        "dailyTarget": "Günlük Hedef",
+        "unitPlaceholder": "Örn: sayfa, bardak"
+    },
+    "detail": {
+        "notFound": "Alışkanlık bulunamadı",
+        "backToHabits": "Alışkanlıklara Dön",
+        "currentStreak": "Güncel Seri",
+        "longestStreak": "En Uzun Seri",
+        "totalCompletions": "Toplam Tamamlama",
+        "successRate": "Başarı Oranı",
+        "activityMap": "Aktivite Haritası",
+        "lastNMonths": "Son {{count}} ay",
+        "notDone": "Yapılmadı",
+        "done": "Yapıldı",
+        "todayCompleted": "Tamamlandı! 🎉",
+        "todayClickToComplete": "Tamamlamak için tıkla",
+        "weeklyTrend": "Haftalık Trend",
+        "editHabit": "Alışkanlığı Düzenle",
+        "deleteHabit": "Alışkanlığı Sil?",
+        "deleteConfirmMessage": "\"{{name}}\" alışkanlığını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+        "confirmDelete": "Evet, Sil"
+    },
+    "toast": {
+        "nameRequired": "Alışkanlık adı gerekli",
+        "updated": "Alışkanlık güncellendi",
+        "created": "Alışkanlık eklendi",
+        "deleted": "Alışkanlık silindi",
+        "restored": "Alışkanlık geri yüklendi",
+        "archived": "Alışkanlık arşivlendi"
+    }
+}

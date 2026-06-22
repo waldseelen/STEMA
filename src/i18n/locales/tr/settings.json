@@ -1,0 +1,65 @@
+{
+    "title": "Ayarlar",
+    "subtitle": "Uygulama tercihlerini özelleştir",
+    "sections": {
+        "appearance": "Görünüm",
+        "preferences": "Tercihler",
+        "commandBar": "Arama ve Komutlar",
+        "data": "Veri Yönetimi",
+        "about": "Hakkında"
+    },
+    "theme": {
+        "title": "Tema",
+        "light": "Açık",
+        "dark": "Koyu",
+        "system": "Sistem"
+    },
+    "language": {
+        "title": "Dil",
+        "tr": "Türkçe",
+        "en": "English"
+    },
+    "dateFormat": {
+        "title": "Tarih Formatı",
+        "dmy": "GG/AA/YYYY",
+        "mdy": "AA/GG/YYYY",
+        "ymd": "YYYY-AA-GG"
+    },
+    "weekStart": {
+        "title": "Hafta Başlangıcı",
+        "sunday": "Pazar",
+        "monday": "Pazartesi"
+    },
+    "notifications": {
+        "title": "Bildirimler",
+        "enable": "Bildirimleri Etkinleştir",
+        "habitReminder": "Alışkanlık Hatırlatıcısı",
+        "examReminder": "Sınav Hatırlatıcısı"
+    },
+    "data": {
+        "export": "Veriyi Dışa Aktar",
+        "import": "Veriyi İçe Aktar",
+        "backup": "Yedekle",
+        "restore": "Geri Yükle",
+        "clear": "Tüm Verileri Sil",
+        "clearConfirm": "Tüm verileriniz silinecek. Bu işlem geri alınamaz. Devam etmek istiyor musunuz?"
+    },
+    "migration": {
+        "title": "Veri Taşıma",
+        "status": "Durum",
+        "completed": "Tamamlandı",
+        "pending": "Bekliyor",
+        "rollback": "Geri Al",
+        "purgeLegacy": "Eski Verileri Temizle"
+    },
+    "commandBar": {
+        "title": "Gelişmiş Komut Modu",
+        "description": "/timer, g:, yt: gibi prefix komutları etkinleştirir"
+    },
+    "about": {
+        "version": "Sürüm",
+        "buildDate": "Derleme Tarihi",
+        "github": "GitHub",
+        "feedback": "Geri Bildirim"
+    }
+}

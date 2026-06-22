@@ -1,0 +1,210 @@
+{
+    "title": "Dersler",
+    "subtitle": "Ders ve konuları yönet",
+    "course": {
+        "title": "Ders",
+        "code": "Ders Kodu",
+        "name": "Ders Adı",
+        "color": "Renk",
+        "create": "Yeni Ders",
+        "edit": "Dersi Düzenle",
+        "delete": "Dersi Sil",
+        "deleteConfirm": "Bu dersi silmek istediğinizden emin misiniz? Tüm konular ve görevler de silinecek."
+    },
+    "unit": {
+        "title": "Konu",
+        "name": "Konu Adı",
+        "create": "Yeni Konu",
+        "edit": "Konuyu Düzenle",
+        "delete": "Konuyu Sil",
+        "deleteConfirm": "Bu konuyu silmek istediğinizden emin misiniz?"
+    },
+    "task": {
+        "title": "Görev",
+        "text": "Görev Metni",
+        "create": "Yeni Görev",
+        "edit": "Görevi Düzenle",
+        "delete": "Görevi Sil",
+        "status": {
+            "todo": "Yapılacak",
+            "inProgress": "Devam Ediyor",
+            "review": "İnceleniyor",
+            "done": "Tamamlandı"
+        },
+        "priority": "Öncelikli",
+        "dueDate": "Bitiş Tarihi",
+        "note": "Not",
+        "tags": "Etiketler"
+    },
+    "progress": {
+        "title": "İlerleme",
+        "completed": "{{completed}}/{{total}} tamamlandı",
+        "percent": "%{{percent}}"
+    },
+    "personalTask": {
+        "title": "Kişisel Görevler",
+        "subtitle": "Günlük yapılacaklar listesi",
+        "create": "Yeni Görev Ekle",
+        "emptyTitle": "Henüz görev yok",
+        "emptyDescription": "Kişisel görevlerinizi ekleyerek organize olun."
+    },
+    "stats": {
+        "totalCourses": "Toplam Program",
+        "totalTasks": "Toplam Görev",
+        "completedTasks": "Tamamlanan",
+        "overallProgress": "Genel İlerleme"
+    },
+    "examples": {
+        "courseName": "örn: Matematik I",
+        "courseCode": "örn: MAT101",
+        "taskDescription": "Görev açıklaması...",
+        "additionalNotes": "Ek notlar..."
+    },
+    "validation": {
+        "courseNameRequired": "Ders adı gerekli",
+        "taskTextRequired": "Görev metni gerekli"
+    },
+    "quickNotes": {
+        "title": "Hızlı Notlar",
+        "count": "{{count}} not",
+        "placeholder": "Hızlı bir not ekle...",
+        "empty": "Henüz not yok. İlk notunu ekle!",
+        "saveTitle": "Kaydet (Enter)",
+        "cancelTitle": "İptal (Esc)",
+        "deleteTitle": "Sil"
+    },
+    "lectureNotes": {
+        "title": "Ders Notları",
+        "upload": "PDF Yükle",
+        "loading": "Yükleniyor...",
+        "dropzonePrefix": "PDF dosyasını buraya sürükleyin veya",
+        "selectFile": "dosya seçin",
+        "maxSize": "Maksimum 50MB",
+        "emptyTitle": "Henüz ders notu yok",
+        "emptyDescription": "{{courseName}} için PDF ders notları ekleyin",
+        "openInNewTab": "Yeni sekmede aç",
+        "download": "İndir",
+        "loadError": "PDF'ler yüklenemedi",
+        "uploadError": "Yükleme başarısız",
+        "onlyPdfError": "Sadece PDF dosyaları yüklenebilir",
+        "deleteError": "Silme başarısız",
+        "openError": "Dosya açılamadı",
+        "downloadError": "İndirme başarısız"
+    },
+    "commandPalette": {
+        "title": "Komut Paleti",
+        "placeholder": "Komut ara, ders/görev bul veya dışarıda ara...",
+        "ariaLabel": "Komut paleti",
+        "results": "Arama Sonuçları",
+        "quickActions": "Hızlı Aksiyonlar",
+        "noResults": "Sonuç bulunamadı.",
+        "types": {
+            "course": "Ders",
+            "unit": "Ünite",
+            "task": "Görev"
+        },
+        "actions": {
+            "newTask": {
+                "label": "Yeni görev oluştur",
+                "description": "Görev ekleme ekranını aç"
+            },
+            "openCalendar": {
+                "label": "Takvimi aç",
+                "description": "Etkinlik ve sınavları görüntüle"
+            },
+            "openHabits": {
+                "label": "Alışkanlık ekle",
+                "description": "Günlük rutinlerini düzenle"
+            }
+        }
+    },
+    "statistics": {
+        "title": "İstatistikler",
+        "subtitle": "Genel ilerleme ve istatistikler",
+        "completedTasks": "Tamamlanan Görev",
+        "averageHabitScore": "Ortalama Alışkanlık Skoru",
+        "taskCompletion": "Görev Tamamlama",
+        "todayPomodoro": "Bugünkü Pomodoro",
+        "pomodoroSummaryTitle": "Pomodoro Özeti",
+        "pomodoroSummarySubtitle": "Çalışma istatistikleri",
+        "today": "Bugün",
+        "total": "Toplam",
+        "todayWorkDuration": "Bugünkü Çalışma Süresi",
+        "weeklyActivityTitle": "Haftalık Aktivite",
+        "weeklyActivitySubtitle": "Son 7 günlük tamamlama",
+        "tasks": "Görevler",
+        "habits": "Alışkanlıklar",
+        "overallProgress": "Genel İlerleme",
+        "completed": "Tamamlandı",
+        "remaining": "Kalan",
+        "courseProgress": "Ders İlerlemesi",
+        "noCourses": "Henüz ders eklenmemiş",
+        "habitStatsTitle": "Alışkanlık İstatistikleri",
+        "habitStatsSubtitle": "Tüm alışkanlıkların performansı",
+        "noHabits": "Henüz alışkanlık eklenmemiş",
+        "addHabit": "Alışkanlık Ekle",
+        "last30Days": "Son 30 gün: {{count}} gün"
+    },
+    "courseDetail": {
+        "notFound": "Program bulunamadı",
+        "backToCourses": "Programlara Dön",
+        "addExamOrEvent": "Sınav / Etkinlik",
+        "editCourseTitle": "Dersi düzenle",
+        "nextDeadline": "Bir sonraki sınav/etkinliğe",
+        "totalTasks": "Toplam görev",
+        "tasks": "Görevler",
+        "addTask": "Görev Ekle",
+        "emptyTasksTitle": "Henüz görev yok",
+        "emptyTasksDescription": "Bu derse görev ekleyerek başlayın.",
+        "addFirstTask": "İlk Görevi Ekle",
+        "calendar": "Takvim",
+        "addEvent": "Etkinlik Ekle",
+        "emptyEventsTitle": "Henüz etkinlik/sınav yok",
+        "emptyEventsDescription": "Bu ders için sınav veya etkinlik ekleyin.",
+        "addFirstExam": "İlk Sınavı Ekle",
+        "eventType": {
+            "exam": "Sınav",
+            "event": "Etkinlik",
+            "past": "Geçti"
+        },
+        "unitFallback": "Genel",
+        "editCourse": "Dersi Düzenle",
+        "courseCodeOptional": "Ders Kodu (opsiyonel)",
+        "taskModalTitleCreate": "Yeni Görev",
+        "taskModalTitleEdit": "Görev Düzenle",
+        "taskLabel": "Görev",
+        "unitLabel": "Ünite",
+        "dueDateOptional": "Bitiş Tarihi (opsiyonel)",
+        "noteOptional": "Not (opsiyonel)",
+        "eventModalTitleCreate": "Etkinlik / Sınav Ekle",
+        "eventModalTitleEdit": "Etkinlik / Sınav Düzenle",
+        "typeLabel": "Tip",
+        "titleLabel": "Başlık",
+        "dateLabel": "Tarih",
+        "descriptionOptional": "Açıklama (opsiyonel)"
+    },
+    "eventModal": {
+        "errors": {
+            "notFound": "Etkinlik bulunamadı",
+            "loadFailed": "Etkinlik yüklenemedi",
+            "titleRequired": "Başlık gerekli",
+            "dateRequired": "Tarih gerekli",
+            "courseRequiredForExam": "Sınav için ders seçmelisiniz",
+            "submitFailed": "İşlem başarısız",
+            "deleteFailed": "Silme başarısız"
+        }
+    },
+    "search": {
+        "quickSearch": "Hızlı Arama",
+        "searchGoogle": "Google'da ara...",
+        "searchYouTube": "YouTube'da ara...",
+        "askChatGPT": "ChatGPT'ye sor...",
+        "searchOnGoogle": "Google'da ara",
+        "searchOnYouTube": "YouTube'da ara",
+        "askOnChatGPT": "ChatGPT'ye sor",
+        "searchFor": "\"{{title}}\" için {{provider}} ara",
+        "askFor": "\"{{title}}\" için ChatGPT'ye sor",
+        "searchButton": "Ara",
+        "searchAriaLabel": "{{type}} araması"
+    }
+}

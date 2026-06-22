@@ -1,0 +1,98 @@
+{
+    "title": "Calendar",
+    "subtitle": "Exams and events",
+    "event": {
+        "title": "Event",
+        "name": "Title",
+        "date": "Date",
+        "course": "Course",
+        "description": "Description",
+        "color": "Color",
+        "type": "Type",
+        "create": "New Event",
+        "edit": "Edit",
+        "delete": "Delete",
+        "deleteConfirm": "Are you sure you want to delete this event?"
+    },
+    "eventType": {
+        "exam": "Exam",
+        "event": "Event"
+    },
+    "navigation": {
+        "today": "Today",
+        "previousMonth": "Previous month",
+        "nextMonth": "Next month"
+    },
+    "sections": {
+        "todayEvents": "Today's Events",
+        "upcomingExams": "Upcoming Exams",
+        "thisDay": "Records for This Day"
+    },
+    "empty": {
+        "noEventsToday": "No records for today",
+        "noEventsDescription": "You can add an event for today.",
+        "noUpcomingExams": "No upcoming exams",
+        "noUpcomingExamsDescription": "They will appear here once you add an exam."
+    },
+    "dayNames": {
+        "short": [
+            "Sun",
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat"
+        ],
+        "long": [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+        ]
+    },
+    "monthNames": {
+        "short": [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+        ],
+        "long": [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ]
+    },
+    "validation": {
+        "titleRequired": "Title is required",
+        "dateRequired": "Date is required",
+        "courseRequiredForExam": "You must select a course for an exam"
+    },
+    "daysUntil": {
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "days": "{{count}} days"
+    },
+    "selectCourse": "Select course (optional)"
+}

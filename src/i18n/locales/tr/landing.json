@@ -1,0 +1,151 @@
+{
+    "landing": {
+        "badge": "Public Landing",
+        "pageTitle": "PLAN.EX Başlangıç",
+        "pageAnnouncement": "PLAN.EX başlangıç yüzeyi hazır.",
+        "heroEyebrow": "Tek giriş, net başlangıç",
+        "tagline": "PLAN.EX ders planını, görevleri ve çalışma ritmini tek akışta toplar.",
+        "subtitle": "Planner, tasks, calendar, habits, tracker ve statistics aynı yüzeyde çalışır. Şifresiz girişten sonra kısa profil kurulumu ve uygulama içi onboarding ile akışa doğrudan geçersin.",
+        "ctaEyebrow": "60 saniyelik başlangıç",
+        "ctaTitle": "Şifresiz bağlan, profilini tamamla ve doğrudan planner ritmine geç.",
+        "ctaDescription": "Google ve GitHub aynı seviyede durur. Kullandığın sağlayıcıyı seç; ürün akışı değişmez.",
+        "ctaTrustBadge": "Güvenli yönlendirme",
+        "ctaGroupLabel": "OAuth ile devam et",
+        "equalTrustNote": "İki buton da aynı güvenli onboarding ve planner başlangıcına gider.",
+        "providers": {
+            "google": "Google ile devam et",
+            "github": "GitHub ile devam et",
+            "email": "E-posta ile devam et",
+            "googleHint": "Tanıdık ve hızlı OAuth akışı",
+            "githubHint": "Aynı güvenli akış, geliştirici hesabınla",
+            "emailHint": "E-posta adresini kullanarak kaydol veya giriş yap",
+            "lastUsed": "Son kullanılan"
+        },
+        "heroMeta": {
+            "modules": "6 net modül aynı ritimde",
+            "profile": "Profil kurulumu kısa ve gerekli alan odaklı",
+            "onboarding": "Onboarding uygulama arayüzü içinde çalışır"
+        },
+        "heroSignals": {
+            "unified": {
+                "kicker": "Tek yüzey",
+                "title": "Plan, görev ve ritim aynı yerde",
+                "desc": "Farklı araçlar arasında geçiş yapmadan günlük akademik düzeni tek shell içinde kur."
+            },
+            "entry": {
+                "kicker": "Kısa giriş",
+                "title": "Hızlı ve güvenli OAuth girişi",
+                "desc": "İlk adım sadece sağlayıcı seçimi ve güvenli yönlendirme."
+            },
+            "real": {
+                "kicker": "Entegre onboarding",
+                "title": "Onboarding uygulama içinde kalır",
+                "desc": "İlk rehber ayrı bir pazarlama ekranı yerine çalışma arayüzü üzerinde açılır."
+            }
+        },
+        "ctaFlow": {
+            "entry": "OAuth",
+            "profile": "Profil",
+            "planner": "Planner"
+        },
+        "ctaStats": {
+            "shell": {
+                "value": "1 shell",
+                "label": "Landing, kurulum ve çalışma akışı aynı ürün diliyle açılır."
+            },
+            "providers": {
+                "value": "2 provider",
+                "label": "Google ve GitHub eşit hiyerarşiyle aynı başlangıca gider."
+            },
+            "onboarding": {
+                "value": "Entegre onboarding",
+                "label": "İlk rehber doğrudan uygulama arayüzü içinde açılır."
+            }
+        },
+        "sections": {
+            "features": {
+                "kicker": "Core Features",
+                "title": "Tek üretkenlik yüzeyi, altı net modül",
+                "subtitle": "Kartlar ürün değerini doğrudan anlatır. Planner, tasks, calendar, habits, tracker ve statistics aynı dilde okunur."
+            },
+            "workflow": {
+                "kicker": "Workflow",
+                "title": "İlk giriş, planner'a kadar tutarlı tek bir akış olarak ilerler",
+                "subtitle": "Landing, kısa profil kurulumu ve onboarding aynı ürün sırası içinde devam eder."
+            },
+            "future": {
+                "kicker": "Roadmap",
+                "title": "Sonraki modüller yol haritasında işaretli kalır",
+                "subtitle": "Bu kartlar daha sonra açılabilecek alanlar için bilgilendirici yol haritası işaretleridir.",
+                "badge": "Paid Feature Soon"
+            }
+        },
+        "workflow": {
+            "entry": {
+                "title": "OAuth ile temiz ve güvenli giriş",
+                "desc": "Kullanıcı ilk saniyede sadece sağlayıcıyı seçer; gereksiz form bariyeriyle karşılaşmaz.",
+                "badge": "1. adım"
+            },
+            "profile": {
+                "title": "Kısa profil kurulumu",
+                "desc": "Zorunlu alanlar ilk bakışta nettir. Öğrenciye özel alanlar sadece ilgili seçimden sonra açılır.",
+                "badge": "2. adım"
+            },
+            "onboarding": {
+                "title": "Uygulama içi rehber başlangıç",
+                "desc": "Onboarding overlay uygulama arayüzü üzerinde çalışır ve kullanıcıyı ayrı bir tanıtım sayfasına taşımaz.",
+                "badge": "3. adım"
+            }
+        },
+        "features": {
+            "planner": {
+                "title": "Planner",
+                "desc": "Ders yapısı, üniteler ve akademik plan tek merkezde kalır.",
+                "badge": "Core"
+            },
+            "tasks": {
+                "title": "Tasks",
+                "desc": "Kişisel ve ders görevleri tek listede okunur; hızlı ekleme ve aktif iş görünürlüğü korunur.",
+                "badge": "Everyday"
+            },
+            "calendar": {
+                "title": "Calendar",
+                "desc": "Sınavlar, etkinlikler ve teslim tarihleri aynı takvim ritminde görünür.",
+                "badge": "Date View"
+            },
+            "habits": {
+                "title": "Habits",
+                "desc": "Bugünkü rutinler, streak takibi ve hızlı işaretleme sade bir blokta çalışır.",
+                "badge": "Daily"
+            },
+            "tracker": {
+                "title": "Tracker",
+                "desc": "Zaman takibi ve çalışma seansları günlük üretkenlik akışına geri bağlanır.",
+                "badge": "Focus"
+            },
+            "statistics": {
+                "title": "Statistics",
+                "desc": "Planner ve tracker verileri çalışma ritmini görünür kılan özetlerde birleşir.",
+                "badge": "Overview"
+            }
+        },
+        "future": {
+            "focus": {
+                "title": "Derin odak paketleri",
+                "desc": "İleri pomodoro ve odak akışları daha sonra ücretli modül olarak açılabilir."
+            },
+            "insights": {
+                "title": "Daha derin içgörü panelleri",
+                "desc": "Uzun dönem karşılaştırmalar ve gelişmiş raporlar ileride ek katman olarak gelebilir."
+            },
+            "cloud": {
+                "title": "Cloud geçmişi ve snapshot'lar",
+                "desc": "Ek yedek geçmişi ve otomasyonlar sert upsell değil, yol haritası işareti olarak görünür."
+            }
+        },
+        "footer": {
+            "caption": "Tek CTA hattı, kısa kurulum ve daha sakin bir ilk izlenim.",
+            "signature": "2026 made with love ❤️"
+        }
+    }
+}

@@ -1,0 +1,210 @@
+{
+    "title": "Courses",
+    "subtitle": "Manage courses and topics",
+    "course": {
+        "title": "Course",
+        "code": "Course Code",
+        "name": "Course Name",
+        "color": "Color",
+        "create": "New Course",
+        "edit": "Edit Course",
+        "delete": "Delete Course",
+        "deleteConfirm": "Are you sure you want to delete this course? All topics and tasks will also be deleted."
+    },
+    "unit": {
+        "title": "Topic",
+        "name": "Topic Name",
+        "create": "New Topic",
+        "edit": "Edit Topic",
+        "delete": "Delete Topic",
+        "deleteConfirm": "Are you sure you want to delete this topic?"
+    },
+    "task": {
+        "title": "Task",
+        "text": "Task Text",
+        "create": "New Task",
+        "edit": "Edit Task",
+        "delete": "Delete Task",
+        "status": {
+            "todo": "To Do",
+            "inProgress": "In Progress",
+            "review": "Under Review",
+            "done": "Done"
+        },
+        "priority": "Priority",
+        "dueDate": "Due Date",
+        "note": "Note",
+        "tags": "Tags"
+    },
+    "progress": {
+        "title": "Progress",
+        "completed": "{{completed}}/{{total}} completed",
+        "percent": "%{{percent}}"
+    },
+    "personalTask": {
+        "title": "Personal Tasks",
+        "subtitle": "Daily to-do list",
+        "create": "Add New Task",
+        "emptyTitle": "No tasks yet",
+        "emptyDescription": "Stay organized by adding your personal tasks."
+    },
+    "stats": {
+        "totalCourses": "Total Courses",
+        "totalTasks": "Total Tasks",
+        "completedTasks": "Completed",
+        "overallProgress": "Overall Progress"
+    },
+    "examples": {
+        "courseName": "e.g. Mathematics I",
+        "courseCode": "e.g. MAT101",
+        "taskDescription": "Task description...",
+        "additionalNotes": "Additional notes..."
+    },
+    "validation": {
+        "courseNameRequired": "Course name is required",
+        "taskTextRequired": "Task text is required"
+    },
+    "quickNotes": {
+        "title": "Quick Notes",
+        "count": "{{count}} notes",
+        "placeholder": "Add a quick note...",
+        "empty": "No notes yet. Add your first note!",
+        "saveTitle": "Save (Enter)",
+        "cancelTitle": "Cancel (Esc)",
+        "deleteTitle": "Delete"
+    },
+    "lectureNotes": {
+        "title": "Lecture Notes",
+        "upload": "Upload PDF",
+        "loading": "Loading...",
+        "dropzonePrefix": "Drag a PDF file here or",
+        "selectFile": "choose a file",
+        "maxSize": "Maximum 50MB",
+        "emptyTitle": "No lecture notes yet",
+        "emptyDescription": "Add PDF lecture notes for {{courseName}}",
+        "openInNewTab": "Open in new tab",
+        "download": "Download",
+        "loadError": "Failed to load PDFs",
+        "uploadError": "Upload failed",
+        "onlyPdfError": "Only PDF files can be uploaded",
+        "deleteError": "Delete failed",
+        "openError": "Could not open file",
+        "downloadError": "Download failed"
+    },
+    "commandPalette": {
+        "title": "Command Palette",
+        "placeholder": "Search commands, find courses/tasks, or search outside...",
+        "ariaLabel": "Command palette",
+        "results": "Search Results",
+        "quickActions": "Quick Actions",
+        "noResults": "No results found.",
+        "types": {
+            "course": "Course",
+            "unit": "Unit",
+            "task": "Task"
+        },
+        "actions": {
+            "newTask": {
+                "label": "Create new task",
+                "description": "Open the task creation screen"
+            },
+            "openCalendar": {
+                "label": "Open calendar",
+                "description": "View events and exams"
+            },
+            "openHabits": {
+                "label": "Add habit",
+                "description": "Manage your daily routines"
+            }
+        }
+    },
+    "statistics": {
+        "title": "Statistics",
+        "subtitle": "Overall progress and statistics",
+        "completedTasks": "Completed Tasks",
+        "averageHabitScore": "Average Habit Score",
+        "taskCompletion": "Task Completion",
+        "todayPomodoro": "Today's Pomodoro",
+        "pomodoroSummaryTitle": "Pomodoro Summary",
+        "pomodoroSummarySubtitle": "Work statistics",
+        "today": "Today",
+        "total": "Total",
+        "todayWorkDuration": "Today's Work Duration",
+        "weeklyActivityTitle": "Weekly Activity",
+        "weeklyActivitySubtitle": "Completions over the last 7 days",
+        "tasks": "Tasks",
+        "habits": "Habits",
+        "overallProgress": "Overall Progress",
+        "completed": "Completed",
+        "remaining": "Remaining",
+        "courseProgress": "Program Progress",
+        "noCourses": "No programs yet",
+        "habitStatsTitle": "Habit Statistics",
+        "habitStatsSubtitle": "Performance across all habits",
+        "noHabits": "No habits yet",
+        "addHabit": "Add Habit",
+        "last30Days": "Last 30 days: {{count}} days"
+    },
+    "courseDetail": {
+        "notFound": "Program not found",
+        "backToCourses": "Back to Programs",
+        "addExamOrEvent": "Exam / Event",
+        "editCourseTitle": "Edit course",
+        "nextDeadline": "Until the next exam/event",
+        "totalTasks": "Total tasks",
+        "tasks": "Tasks",
+        "addTask": "Add Task",
+        "emptyTasksTitle": "No tasks yet",
+        "emptyTasksDescription": "Start by adding tasks to this course.",
+        "addFirstTask": "Add First Task",
+        "calendar": "Calendar",
+        "addEvent": "Add Event",
+        "emptyEventsTitle": "No events/exams yet",
+        "emptyEventsDescription": "Add an exam or event for this course.",
+        "addFirstExam": "Add First Exam",
+        "eventType": {
+            "exam": "Exam",
+            "event": "Event",
+            "past": "Past"
+        },
+        "unitFallback": "General",
+        "editCourse": "Edit Course",
+        "courseCodeOptional": "Course Code (optional)",
+        "taskModalTitleCreate": "New Task",
+        "taskModalTitleEdit": "Edit Task",
+        "taskLabel": "Task",
+        "unitLabel": "Unit",
+        "dueDateOptional": "Due Date (optional)",
+        "noteOptional": "Note (optional)",
+        "eventModalTitleCreate": "Add Event / Exam",
+        "eventModalTitleEdit": "Edit Event / Exam",
+        "typeLabel": "Type",
+        "titleLabel": "Title",
+        "dateLabel": "Date",
+        "descriptionOptional": "Description (optional)"
+    },
+    "eventModal": {
+        "errors": {
+            "notFound": "Event not found",
+            "loadFailed": "Failed to load event",
+            "titleRequired": "Title is required",
+            "dateRequired": "Date is required",
+            "courseRequiredForExam": "You must select a course for an exam",
+            "submitFailed": "Operation failed",
+            "deleteFailed": "Delete failed"
+        }
+    },
+    "search": {
+        "quickSearch": "Quick Search",
+        "searchGoogle": "Search Google...",
+        "searchYouTube": "Search YouTube...",
+        "askChatGPT": "Ask ChatGPT...",
+        "searchOnGoogle": "Search on Google",
+        "searchOnYouTube": "Search on YouTube",
+        "askOnChatGPT": "Ask ChatGPT",
+        "searchFor": "Search {{provider}} for \"{{title}}\"",
+        "askFor": "Ask ChatGPT about \"{{title}}\"",
+        "searchButton": "Search",
+        "searchAriaLabel": "{{type}} search"
+    }
+}

@@ -1,0 +1,65 @@
+{
+    "title": "Settings",
+    "subtitle": "Customize app preferences",
+    "sections": {
+        "appearance": "Appearance",
+        "preferences": "Preferences",
+        "commandBar": "Search and Commands",
+        "data": "Data Management",
+        "about": "About"
+    },
+    "theme": {
+        "title": "Theme",
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+    },
+    "language": {
+        "title": "Language",
+        "tr": "Turkish",
+        "en": "English"
+    },
+    "dateFormat": {
+        "title": "Date Format",
+        "dmy": "DD/MM/YYYY",
+        "mdy": "MM/DD/YYYY",
+        "ymd": "YYYY/MM/DD"
+    },
+    "weekStart": {
+        "title": "Week Start",
+        "sunday": "Sunday",
+        "monday": "Monday"
+    },
+    "notifications": {
+        "title": "Notifications",
+        "enable": "Enable Notifications",
+        "habitReminder": "Habit Reminder",
+        "examReminder": "Exam Reminder"
+    },
+    "data": {
+        "export": "Export Data",
+        "import": "Import Data",
+        "backup": "Back Up",
+        "restore": "Restore",
+        "clear": "Delete All Data",
+        "clearConfirm": "All your data will be deleted. This action cannot be undone. Do you want to continue?"
+    },
+    "migration": {
+        "title": "Data Migration",
+        "status": "Status",
+        "completed": "Completed",
+        "pending": "Pending",
+        "rollback": "Rollback",
+        "purgeLegacy": "Clear Legacy Data"
+    },
+    "commandBar": {
+        "title": "Advanced Command Mode",
+        "description": "Enables prefix commands like /timer, g:, yt:"
+    },
+    "about": {
+        "version": "Version",
+        "buildDate": "Build Date",
+        "github": "GitHub",
+        "feedback": "Feedback"
+    }
+}

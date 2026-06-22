@@ -1,0 +1,122 @@
+{
+    "onboarding": {
+        "progress": "{{current}} / {{total}}",
+        "skip": "Skip",
+        "complete": "Complete",
+        "saving": "Saving...",
+        "begin": "Begin",
+        "gotIt": "Got it",
+        "start": "Get Started",
+        "locatingTitle": "Bringing the target area into view",
+        "locatingDescription": "The overlay is trying to find the related product area and scroll it into a safe visible position.",
+        "fallbackTitle": "This step continues as a generic explanation",
+        "fallbackDescription": "The target element could not be found right now. The step still continues with its explanation, and you can go back if needed.",
+        "saveErrorTitle": "Onboarding state could not be saved",
+        "saveErrorInline": "The tour state could not be saved right now. You can try again or close this layer and return later.",
+        "stepAnnouncement": "{{current}} / {{total}}. {{title}}",
+        "missingTarget": "This step target is not visible right now. The flow continues with a safe fallback.",
+        "toastCompleted": "Onboarding completed",
+        "toastSkipped": "Onboarding closed",
+        "toastError": "Onboarding state could not be saved. Please try again.",
+        "routeChangedToast": "Onboarding was closed safely because the route changed.",
+        "routeChangedAnnouncement": "Onboarding was paused because the screen changed. It can open again when you return to planner.",
+        "moduleCards": {
+            "planner": {
+                "title": "Planner",
+                "description": "Central hub for courses, tasks, and habits."
+            },
+            "tracker": {
+                "title": "Tracker",
+                "description": "Session-based time tracking and goal-driven reports."
+            },
+            "habits": {
+                "title": "Habits",
+                "description": "Daily habit tracking and streak system."
+            }
+        },
+        "usageOptions": {
+            "student": {
+                "title": "Student",
+                "description": "I use it for courses, assignments, and exams."
+            },
+            "working": {
+                "title": "Working",
+                "description": "I use it for projects, tasks, and work flows."
+            },
+            "both": {
+                "title": "Both",
+                "description": "I use it for both school and professional life."
+            }
+        },
+        "steps": {
+            "welcome": {
+                "title": "Welcome to the planner overview",
+                "description": "This tour will walk you through the main blocks of PLAN.EX. You can skip at any time."
+            },
+            "modules": {
+                "title": "Which modules will you use?",
+                "description": "Select the modules that best fit your workflow. You can change this later in settings."
+            },
+            "planner": {
+                "title": "Planner — your courses, tasks, and habits",
+                "description": "Manage all your courses, assignments, and habits from here."
+            },
+            "tracker": {
+                "title": "Tracker — track your time",
+                "description": "Start sessions, monitor your activities, and see your progress against goals."
+            },
+            "habits": {
+                "title": "Today's habits area",
+                "description": "Mark due habits directly from this block and keep an eye on your streak health."
+            },
+            "calendar": {
+                "title": "Jump to the calendar view",
+                "description": "Your events, exams, and date pressure live in the calendar area, and planner connects to it quickly."
+            },
+            "goals": {
+                "title": "Quick actions menu",
+                "description": "Start frequent actions like creating a task, marking a habit, or jumping into tracker from here."
+            },
+            "usage": {
+                "title": "How will you use it?",
+                "description": "Tell us your usage profile so we can tailor the experience for you."
+            },
+            "command": {
+                "title": "Start from the command bar",
+                "description": "Search tasks, courses, and records here, or jump to tracker and external search actions with shortcuts."
+            },
+            "overview": {
+                "title": "Welcome to the planner overview",
+                "description": "This screen collects today's focus, progress summary, and the main product blocks you will act on first."
+            },
+            "navigation": {
+                "title": "Header and shell navigation live here",
+                "description": "The top bar and nearby controls are the main place for command search, quick jumps, and daily shell navigation."
+            },
+            "quickActions": {
+                "title": "Quick actions menu",
+                "description": "Start frequent actions like creating a task, marking a habit, or jumping into tracker from here."
+            },
+            "preferences": {
+                "title": "Theme and language switch instantly",
+                "description": "Theme and language controls stay visible in the shell, and changes are synced with your profile preferences."
+            },
+            "closing": {
+                "title": "Settings and replay access",
+                "description": "The tour ends here. You can later return to profile, onboarding replay, and personal preferences from settings."
+            },
+            "calendar_legacy": {
+                "title": "Jump to the calendar view",
+                "description": "Your events, exams, and date pressure live in the calendar area, and planner connects to it quickly."
+            },
+            "habits_legacy": {
+                "title": "Today's habits area",
+                "description": "Mark due habits directly from this block and keep an eye on your streak health."
+            },
+            "tracker_legacy": {
+                "title": "Tracker module access",
+                "description": "Time tracking, session records, and goals live in the tracker area; there is a quick access point here."
+            }
+        }
+    }
+}

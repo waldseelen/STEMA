@@ -669,7 +669,9 @@ interface PanelCardProps {
     ariaLive?: 'polite' | 'off'
 }
 
-function PanelCard({ children, ariaLive = 'off' }: PanelCardProps) {
+import { memo } from 'react'
+
+const PanelCard = memo(function PanelCard({ children, ariaLive = 'off' }: PanelCardProps) {
     return (
         <section
             className="card py-3 px-3.5"
@@ -678,7 +680,7 @@ function PanelCard({ children, ariaLive = 'off' }: PanelCardProps) {
             {children}
         </section>
     )
-}
+})
 
 interface PanelHeaderProps {
     eyebrow: string
@@ -686,7 +688,7 @@ interface PanelHeaderProps {
     badge?: string
 }
 
-function PanelHeader({ eyebrow, title, badge }: PanelHeaderProps) {
+const PanelHeader = memo(function PanelHeader({ eyebrow, title, badge }: PanelHeaderProps) {
     return (
         <div className="flex items-start justify-between gap-3">
             <div>
@@ -704,7 +706,7 @@ function PanelHeader({ eyebrow, title, badge }: PanelHeaderProps) {
             )}
         </div>
     )
-}
+})
 
 interface ActionButtonProps {
     children: ReactNode
@@ -712,7 +714,7 @@ interface ActionButtonProps {
     onClick: () => void
 }
 
-function ActionButton({ children, className, onClick }: ActionButtonProps) {
+const ActionButton = memo(function ActionButton({ children, className, onClick }: ActionButtonProps) {
     return (
         <button
             type="button"
@@ -725,7 +727,7 @@ function ActionButton({ children, className, onClick }: ActionButtonProps) {
             {children}
         </button>
     )
-}
+})
 
 interface WidgetEmptyStateProps {
     icon: ReactNode
@@ -735,7 +737,7 @@ interface WidgetEmptyStateProps {
     onAction: () => void
 }
 
-function WidgetEmptyState({ icon, title, description, actionLabel, onAction }: WidgetEmptyStateProps) {
+const WidgetEmptyState = memo(function WidgetEmptyState({ icon, title, description, actionLabel, onAction }: WidgetEmptyStateProps) {
     return (
         <div className="mt-3 rounded-[1.15rem] border border-dashed border-[var(--border-subtle)] bg-surface-100 p-3.5">
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-200 text-text-secondary">
@@ -755,7 +757,7 @@ function WidgetEmptyState({ icon, title, description, actionLabel, onAction }: W
             </ActionButton>
         </div>
     )
-}
+})
 
 interface DeadlineSectionProps {
     title: string
@@ -764,7 +766,7 @@ interface DeadlineSectionProps {
     onOpen: (path: string) => void
 }
 
-function DeadlineSection({ title, items, t, onOpen }: DeadlineSectionProps) {
+const DeadlineSection = memo(function DeadlineSection({ title, items, t, onOpen }: DeadlineSectionProps) {
     if (items.length === 0) {
         return null
     }
@@ -823,7 +825,7 @@ function DeadlineSection({ title, items, t, onOpen }: DeadlineSectionProps) {
             </div>
         </div>
     )
-}
+})
 
 function getTaskStatusRank(status: TaskStatus) {
     switch (status) {

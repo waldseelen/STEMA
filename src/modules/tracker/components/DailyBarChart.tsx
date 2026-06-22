@@ -1,7 +1,8 @@
 import type { DailyDuration } from '@/db/time-tracking/queries/statsQueries'
 import { formatDuration } from '@/db/time-tracking/queries/timerQueries'
 import { useLocale, useTranslation } from '@/i18n'
-import ReactECharts from 'echarts-for-react'
+import ReactEChartsCore from 'echarts-for-react/lib/core'
+import { echarts } from '@/shared/lib/echarts'
 import { useMemo } from 'react'
 
 interface DailyBarChartProps {
@@ -82,7 +83,7 @@ export function DailyBarChart({ data }: DailyBarChartProps) {
             <h3 className="text-2xs font-semibold uppercase tracking-[0.12em] text-text-secondary">
                 {t('stats.byDay')}
             </h3>
-            <ReactECharts option={option} style={{ height: 220 }} opts={{ renderer: 'svg' }} />
+            <ReactEChartsCore echarts={echarts} option={option} style={{ height: 220 }} opts={{ renderer: 'svg' }} />
         </div>
     )
 }

@@ -43,7 +43,8 @@ import { calculateMasteryScore } from '../lib/mastery'
 import { splitIntoChunksWithBoundaries, Chunk, ChunkMetadata } from '../lib/chunking'
 import { buildErrorIndex, matchChunkToConcepts, buildConceptKeywordMap } from '../lib/errorIndex'
 import { cleanLatex } from '../lib/latexCleaner'
-import ReactECharts from 'echarts-for-react'
+import ReactEChartsCore from 'echarts-for-react/lib/core'
+import { echarts } from '@/shared/lib/echarts'
 import { addEvent } from '@/db/planner/queries/eventQueries'
 
 interface AttachedFile {
@@ -2191,7 +2192,7 @@ export function LearnChat() {
                         return (
                           <div className="border border-[var(--border-subtle)] rounded-lg p-3 bg-[var(--bg-primary)]">
                             <h4 className="text-2xs font-bold uppercase tracking-wider text-[var(--text-secondary)] font-mono mb-2">Tahmin vs Gerçek Başarı (Kalibrasyon)</h4>
-                            <ReactECharts option={scatterOption} style={{ height: '220px', width: '100%' }} />
+                            <ReactEChartsCore echarts={echarts} option={scatterOption} style={{ height: '220px', width: '100%' }} />
                             <p className="text-[9px] text-[var(--text-muted)] leading-relaxed mt-2">
                               {isTr
                                 ? 'Grafikteki kesikli çizgi mükemmel kalibrasyonu gösterir. Bu çizgiye yakın olmak, öğrenme sürecinde kendi bilginizi ne derece doğru değerlendirdiğinizi simgeler.'
@@ -2274,7 +2275,7 @@ export function LearnChat() {
                         return (
                           <div className="border border-[var(--border-subtle)] rounded-lg p-3 bg-[var(--bg-primary)]">
                             <h4 className="text-2xs font-bold uppercase tracking-wider text-[var(--text-secondary)] font-mono mb-2">Hata Türü Dağılım Analitiği</h4>
-                            <ReactECharts option={pieOption} style={{ height: '200px', width: '100%' }} />
+                            <ReactEChartsCore echarts={echarts} option={pieOption} style={{ height: '200px', width: '100%' }} />
                             <p className="text-[9px] text-[var(--text-muted)] leading-relaxed mt-2">
                               {isTr
                                 ? 'Hata türlerinizi öğrenerek hangi aşamalarda aksadığınızı görebilir ve Feynman modunda zayıf noktalarınıza ağırlık verebilirsiniz.'

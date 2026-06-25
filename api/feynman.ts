@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
+import { db, collection, addDoc, getUserIdFromToken } from './lib/firebaseEdge'
 import { callLLM } from './lib/llmClient'
 
 export const config = {
@@ -63,31 +63,9 @@ export default async function handler(req: Request): Promise<Response> {
       })
     }
 
-    // Initialize Supabase client
+    // Initialize User ID
     const authHeader = req.headers.get('Authorization') || req.headers.get('authorization')
-    const token = authHeader ? authHeader.replace('Bearer ', '') : null
-    const isMockUser = token === 'mock-session-token' || !token
-    
-    const supabaseUrl = process.env.VITE_SUPABASE_URL
-    const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-    const activeKey = (isMockUser && supabaseServiceKey) ? supabaseServiceKey : (supabaseAnonKey || '')
-
-    const supabaseClient = createClient(supabaseUrl || '', activeKey, {
-      global: {
-        headers: (!isMockUser && token) ? { Authorization: `Bearer ${token}` } : {},
-      },
-    })
-
-    let userId = '00000000-0000-0000-0000-000000000000'
-    if (token && token !== 'mock-session-token') {
-      try {
-        const { data: { user } } = await supabaseClient.auth.getUser()
-        if (user) userId = user.id
-      } catch (err) {
-        console.error('Error fetching user for Feynman API:', err)
-      }
-    }
+    const userId = getUserIdFromToken(authHeader)
 
     let evaluatedJSON: any = null
 
@@ -114,25 +92,23 @@ export default async function handler(req: Request): Promise<Response> {
       evaluatedJSON = getMockFeynmanEvaluation(conceptName, userExplanation)
     }
 
-    // Store in tutor_events
-    if (supabaseUrl && userId !== '00000000-0000-0000-0000-000000000000') {
-      void supabaseClient
-        .from('tutor_events')
-        .insert({
-          user_id: userId,
-          event_type: 'feynman_evaluation',
-          payload: {
-            concept_id: conceptId || null,
-            concept_name: conceptName,
-            score: evaluatedJSON.score,
-            gaps: evaluatedJSON.gaps,
-            mnemonic: evaluatedJSON.mnemonic,
-            timestamp: new Date().toISOString()
-          }
-        })
-        .then(({ error }) => {
-          if (error) console.error('Error logging feynman_evaluation event:', error)
-        })
+    // Store in tutor_events on Firestore
+    if (userId !== '00000000-0000-0000-0000-000000000000') {
+      void addDoc(collection(db, 'tutor_events'), {
+        user_id: userId,
+        event_type: 'feynman_evaluation',
+        payload: {
+          concept_id: conceptId || null,
+          concept_name: conceptName,
+          score: evaluatedJSON.score,
+          gaps: evaluatedJSON.gaps,
+          mnemonic: evaluatedJSON.mnemonic,
+          timestamp: new Date().toISOString()
+        },
+        created_at: new Date().toISOString()
+      }).catch(err => {
+        console.error('Error logging feynman_evaluation event to Firestore:', err)
+      })
     }
 
     return new Response(JSON.stringify(evaluatedJSON), {

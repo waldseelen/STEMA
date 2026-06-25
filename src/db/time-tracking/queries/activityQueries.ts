@@ -27,7 +27,7 @@ import {
     trackerUpdateTag,
 } from '@/lib/cloud/trackerRepo'
 import { useSupabaseQuery } from '@/shared/hooks/useSupabaseQuery'
-import type { Activity, Category, Goal, GoalScope } from '../../types'
+import type { Activity, Category, Goal, GoalScope } from '../types'
 
 type ActivityDefaultGoalInput = {
     scope: Extract<GoalScope, 'daily' | 'weekly'>
@@ -194,7 +194,7 @@ export async function createTag(
 
 export async function updateTag(
     id: string,
-    changes: Partial<Omit<import('../../types').Tag, 'id' | 'createdAt'>>
+    changes: Partial<Omit<import('../types').Tag, 'id' | 'createdAt'>>
 ): Promise<void> {
     await trackerUpdateTag(id, changes)
     invalidateTables(['tags'])
@@ -205,7 +205,7 @@ export async function deleteTag(id: string): Promise<void> {
     invalidateTables(['tags'])
 }
 
-export async function getAllTags(): Promise<import('../../types').Tag[]> {
+export async function getAllTags(): Promise<import('../types').Tag[]> {
     return trackerGetAllTags()
 }
 

@@ -14,7 +14,7 @@ import {
     trackerUpdateGoal
 } from '@/lib/cloud/trackerRepo';
 import { useSupabaseQuery } from '@/shared/hooks/useSupabaseQuery';
-import type { Goal, GoalScope } from '../../types';
+import type { Goal, GoalScope } from '../types';
 
 // ============================================
 // Tarih Aralığı Yardımcıları

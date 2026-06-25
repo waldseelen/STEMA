@@ -5,7 +5,7 @@
  * İş mantığı veritabanı şemasından ayrı tutulmuştur.
  */
 
-import type { Category, PomodoroConfig, Setting } from '@/db/types'
+import type { Category, PomodoroConfig, Setting } from '@/db/time-tracking/types'
 import { getCurrentLocale } from '@/i18n'
 import { DB_CONSTANTS, DEFAULT_POMODORO, DEFAULT_SETTINGS } from './constants'
 

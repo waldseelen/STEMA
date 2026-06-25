@@ -6,14 +6,15 @@
  * Tüm yazma/okuma işlemleri Firestore üzerinden yapılır.
  */
 
-import { supabase } from '@/config/supabase'
+import { db } from '@/config/firebase'
+import { collection, query, where, getDocs } from 'firebase/firestore'
 import {
     listOwnedRows,
     upsertOwnedRow,
     upsertOwnedRows,
     deleteOwnedRows,
     updateOwnedRows,
-} from './supabaseRepo'
+} from './firestoreRepo'
 import type {
     DBCompletionRecord,
     DBCourse,
@@ -28,10 +29,10 @@ import type {
     TaskStatus,
 } from '@/db/planner/types'
 import { captureSecureException } from '@/modules/auth/lib/telemetry'
-import type { Database, Json } from '@/types/supabase'
 import { requireCurrentUserId } from './currentUser'
 
-type SC = Database['public']['Tables']
+type SC = any
+type Json = any
 
 // ============================================
 // Helpers
@@ -838,95 +839,78 @@ export async function plannerGetCompletionRecordsByDate(dateISO: string): Promis
 export async function plannerCountCourses(): Promise<number> {
     assertEnabled()
     const userId = requireCurrentUserId()
-    const { count, error } = await supabase
-        .from('courses')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-    if (error) throw error
-    return count ?? 0
+    const snap = await getDocs(query(
+        collection(db, 'courses'),
+        where('user_id', '==', userId)
+    ))
+    return snap.size
 }
 
 export async function plannerCountTasks(courseId?: string): Promise<{ total: number; completed: number }> {
     assertEnabled()
     const userId = requireCurrentUserId()
     
-    let queryTotal = supabase
-        .from('tasks')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        
-    let queryCompleted = supabase
-        .from('tasks')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('status', 'done')
-        
+    let q = query(
+        collection(db, 'tasks'),
+        where('user_id', '==', userId)
+    )
     if (courseId) {
-        queryTotal = queryTotal.eq('course_id', courseId)
-        queryCompleted = queryCompleted.eq('course_id', courseId)
+        q = query(q, where('course_id', '==', courseId))
     }
     
-    const [resTotal, resCompleted] = await Promise.all([
-        queryTotal,
-        queryCompleted
-    ])
-    
-    if (resTotal.error) throw resTotal.error
-    if (resCompleted.error) throw resCompleted.error
+    const snap = await getDocs(q)
+    const total = snap.size
+    const completed = snap.docs.filter(d => d.data().status === 'done').length
     
     return {
-        total: resTotal.count ?? 0,
-        completed: resCompleted.count ?? 0
+        total,
+        completed
     }
 }
 
 export async function plannerCountActiveHabits(): Promise<number> {
     assertEnabled()
     const userId = requireCurrentUserId()
-    const { count, error } = await supabase
-        .from('habits')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('archived', false)
-    if (error) throw error
-    return count ?? 0
+    const snap = await getDocs(query(
+        collection(db, 'habits'),
+        where('user_id', '==', userId),
+        where('archived', '==', false)
+    ))
+    return snap.size
 }
 
 export async function plannerCountTodayCompletedHabits(): Promise<number> {
     assertEnabled()
     const userId = requireCurrentUserId()
     const today = todayKey()
-    const { count, error } = await supabase
-        .from('habit_logs')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('date', today)
-        .eq('status', 'done')
-    if (error) throw error
-    return count ?? 0
+    const snap = await getDocs(query(
+        collection(db, 'habit_logs'),
+        where('user_id', '==', userId),
+        where('date', '==', today),
+        where('status', '==', 'done')
+    ))
+    return snap.size
 }
 
 export async function plannerCountUpcomingExams(): Promise<number> {
     assertEnabled()
     const userId = requireCurrentUserId()
     const today = todayKey()
-    const { count, error } = await supabase
-        .from('events')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('type', 'exam')
-        .gte('date', today)
-    if (error) throw error
-    return count ?? 0
+    const snap = await getDocs(query(
+        collection(db, 'events'),
+        where('user_id', '==', userId),
+        where('type', '==', 'exam'),
+        where('date', '>=', today)
+    ))
+    return snap.size
 }
 
 export async function plannerCountPersonalTasks(): Promise<number> {
     assertEnabled()
     const userId = requireCurrentUserId()
-    const { count, error } = await supabase
-        .from('personal_tasks')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-    if (error) throw error
-    return count ?? 0
+    const snap = await getDocs(query(
+        collection(db, 'personal_tasks'),
+        where('user_id', '==', userId)
+    ))
+    return snap.size
 }

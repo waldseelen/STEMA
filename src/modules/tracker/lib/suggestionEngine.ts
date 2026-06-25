@@ -5,7 +5,7 @@
  * ve "Bu saatte genelde: X yapıyorsun" önerileri üretir.
  */
 
-import type { Activity } from '@/db/types'
+import type { Activity } from '@/db/time-tracking/types'
 import { getCurrentLocale, getTranslation } from '@/i18n'
 import {
     trackerGetAllActivities,

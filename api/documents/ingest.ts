@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
+import { db, collection, addDoc, getUserIdFromToken } from '../lib/firebaseEdge'
 
 export const config = {
   runtime: 'edge',
@@ -37,21 +37,9 @@ export default async function handler(req: Request): Promise<Response> {
       })
     }
 
-    // 1. Initialize Supabase Client with User's JWT (respecting RLS)
+    // 1. Get User ID from JWT Token
     const authHeader = req.headers.get('Authorization') || req.headers.get('authorization')
-    const token = authHeader ? authHeader.replace('Bearer ', '') : null
-
-    const isMockUser = token === 'mock-session-token' || !token
-    const supabaseUrl = process.env.VITE_SUPABASE_URL
-    const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-    
-    const activeKey = (isMockUser && supabaseServiceKey) ? supabaseServiceKey : (supabaseAnonKey || '')
-    const supabaseClient = createClient(supabaseUrl || '', activeKey, {
-      global: {
-        headers: (!isMockUser && token) ? { Authorization: `Bearer ${token}` } : {},
-      },
-    })
+    const userId = getUserIdFromToken(authHeader)
 
     // 2. Fetch Embeddings via OpenRouter
     const openrouterKey = process.env.OPENROUTER_API_KEY
@@ -105,26 +93,20 @@ export default async function handler(req: Request): Promise<Response> {
         .sort((a: any, b: any) => a.index - b.index)
         .map((item: any) => item.embedding)
 
-      // Prepare database rows
-      const insertRows = currentBatch.map((chunk, idx) => ({
-        document_id: documentId,
-        content: chunk.content,
-        embedding: sortedEmbeddings[idx],
-        metadata: chunk.metadata || {},
-      }))
-
-      // Insert into Supabase
-      const { error: dbError } = await supabaseClient
-        .from('document_chunks')
-        .insert(insertRows)
-
-      if (dbError) {
-        console.error('Database insertion error:', dbError)
-        return new Response(JSON.stringify({ error: `Failed to store chunks in database: ${dbError.message}` }), {
-          status: 500,
-          headers,
+      // Write chunks to Firestore document_chunks collection
+      const colRef = collection(db, 'document_chunks')
+      await Promise.all(
+        currentBatch.map(async (chunk, idx) => {
+          await addDoc(colRef, {
+            document_id: documentId,
+            user_id: userId,
+            content: chunk.content,
+            embedding: sortedEmbeddings[idx],
+            metadata: chunk.metadata || {},
+            created_at: new Date().toISOString()
+          })
         })
-      }
+      )
 
       processedCount += currentBatch.length
     }
@@ -139,6 +121,6 @@ export default async function handler(req: Request): Promise<Response> {
     return new Response(JSON.stringify({ error: err.message || 'Internal server error' }), {
       status: 500,
       headers,
-    })
+      })
   }
 }

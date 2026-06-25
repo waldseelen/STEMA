@@ -1,4 +1,4 @@
-import type { Goal, HabitLog, TimeSession } from '@/db/types'
+import type { Goal, HabitLog, TimeSession } from '@/db/time-tracking/types'
 
 // ============================================
 // Event Type Definitions
@@ -204,6 +204,16 @@ export interface DataExportedEvent {
     }
 }
 
+export interface LearnEventCreatedEvent {
+    type: 'LEARN_EVENT_CREATED'
+    payload: {
+        title: string
+        dateISO: string
+        description: string
+        color: string
+    }
+}
+
 // Union type of all events
 export type DomainEvent =
     | TimerStartedEvent
@@ -229,6 +239,7 @@ export type DomainEvent =
     | SettingChangedEvent
     | DataImportedEvent
     | DataExportedEvent
+    | LearnEventCreatedEvent
 
 // Event type string literal union
 export type EventType = DomainEvent['type']

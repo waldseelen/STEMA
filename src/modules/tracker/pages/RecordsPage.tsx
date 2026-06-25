@@ -5,9 +5,9 @@ import { useTranslations } from '@/i18n'
 import { ArrowLeft, ClipboardList, Inbox } from 'lucide-react'
 import { useCallback, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { RecordEditModal } from '../components/RecordEditModal'
-import { RecordsFilter, type RecordsFilterState } from '../components/RecordsFilter'
-import { RecordsGroupByDate } from '../components/RecordsGroupByDate'
+import { RecordEditModal } from '../components/features/RecordEditModal'
+import { RecordsFilter, type RecordsFilterState } from '../components/features/RecordsFilter'
+import { RecordsGroupByDate } from '../components/features/RecordsGroupByDate'
 
 function daysAgo(days: number): string {
     const date = new Date()

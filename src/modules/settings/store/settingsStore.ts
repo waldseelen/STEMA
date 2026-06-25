@@ -1,9 +1,9 @@
 import { DEFAULT_POMODORO_CONFIG } from '@/config/defaults'
-import { db } from '@/db'
-import type { PomodoroConfig, Setting, SettingKey } from '@/db/types'
+import { db } from '@/db/time-tracking'
+import type { PomodoroConfig, Setting, SettingKey } from '@/db/time-tracking/types'
 import { eventBus } from '@/events'
 import { ensureRemoteUserDefaults } from '@/lib/cloud/remoteDefaults'
-import { listOwnedRows, upsertOwnedRow } from '@/lib/cloud/supabaseRepo'
+import { listOwnedRows, upsertOwnedRow } from '@/lib/cloud/firestoreRepo'
 import { getCurrentLocale, type Locale } from '@/i18n'
 import { useAuthStore } from '@/modules/auth/store/authStore'
 import { create } from 'zustand'
@@ -133,14 +133,14 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
                     listOwnedRows('pomodoro_configs'),
                 ])
 
-                const settings = remoteSettings.map(setting => ({
+                const settings = remoteSettings.map((setting: any) => ({
                     key: setting.key as SettingKey,
                     value: setting.value as Setting['value'],
                 }))
                 const settingsMap = mapSettingRows(settings)
                 const selectedPomodoroId = (settingsMap.get('defaultPomodoroConfigId') as string | null) ?? DEFAULT_POMODORO_CONFIG.id
-                const defaultRemoteConfig = remotePomodoroConfigs.find(config => config.id === selectedPomodoroId)
-                    ?? remotePomodoroConfigs.find(config => config.is_default)
+                const defaultRemoteConfig = remotePomodoroConfigs.find((config: any) => config.id === selectedPomodoroId)
+                    ?? remotePomodoroConfigs.find((config: any) => config.is_default)
                 const pomodoroConfig = defaultRemoteConfig
                     ? mapPomodoroRowToLocalConfig(defaultRemoteConfig)
                     : getDefaultPomodoroConfig()

@@ -1,4 +1,3 @@
-import { createClient } from '@supabase/supabase-js'
 import { callLLM } from './lib/llmClient'
 
 export const config = {

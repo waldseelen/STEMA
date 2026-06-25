@@ -121,6 +121,7 @@ const plugins: PluginOption[] = [
                 ]
             },
             workbox: {
+                maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
                 globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,webp}'],
                 // Kritik kaynakları önbelleğe al
                 runtimeCaching: [

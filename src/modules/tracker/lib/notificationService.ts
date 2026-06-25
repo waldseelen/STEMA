@@ -7,7 +7,7 @@
  */
 
 import { computeElapsedSec, formatDuration } from '@/db/time-tracking/queries/timerQueries'
-import type { RunningTimer } from '@/db/types'
+import type { RunningTimer } from '@/db/time-tracking/types'
 import { getCurrentLocale, getTranslation } from '@/i18n'
 
 /** Aktif locale'den tracker namespace çevirisi al */

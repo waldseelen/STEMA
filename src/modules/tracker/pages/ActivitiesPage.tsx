@@ -12,7 +12,7 @@ import {
     useActiveCategories,
     useArchivedActivities,
 } from '@/db/time-tracking/queries/activityQueries'
-import type { Activity } from '@/db/types'
+import type { Activity } from '@/db/time-tracking/types'
 import { useTranslations } from '@/i18n'
 import { EntityIcon, useToast } from '@/shared/components'
 import { clsx } from 'clsx'
@@ -20,7 +20,7 @@ import { Archive, ArrowLeft, Inbox, Layers, Plus, RotateCcw, Trash2 } from 'luci
 import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-const ActivityEditModal = lazy(() => import('../components/ActivityEditModal').then(m => ({ default: m.ActivityEditModal })))
+const ActivityEditModal = lazy(() => import('../components/features/ActivityEditModal').then(m => ({ default: m.ActivityEditModal })))
 
 function getErrorMessage(error: unknown, fallback: string) {
     return error instanceof Error && error.message.trim() ? error.message : fallback

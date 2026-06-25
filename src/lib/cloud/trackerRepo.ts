@@ -23,18 +23,17 @@ import type {
     Tag,
     TimeSession,
     TimerMode,
-} from '@/db/types'
+} from '@/db/time-tracking/types'
 import { captureSecureException } from '@/modules/auth/lib/telemetry'
-import type { Database } from '@/types/supabase'
 import { requireCurrentUserId } from './currentUser'
 import {
     listOwnedRows,
     upsertOwnedRow,
     deleteOwnedRows,
     updateOwnedRows,
-} from './supabaseRepo'
+} from './firestoreRepo'
 
-type SC = Database['public']['Tables']
+type SC = any
 
 // ============================================
 // Helpers

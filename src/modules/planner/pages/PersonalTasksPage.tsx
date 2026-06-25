@@ -16,10 +16,15 @@ import {
     ListTodo,
     Plus,
     Trash2,
+    LayoutGrid,
+    List,
+    BarChart3
 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ExternalSearchButtons } from '../components/features/ExternalSearchButtons'
+import { KanbanBoard } from '../components/features/KanbanBoard'
+import { TimelineView } from '../components/features/TimelineView'
 import { Button, IconButton } from '../components/ui/Button'
 import { Badge, Card, EmptyState } from '../components/ui/Card'
 import { PlannerEntityIcon, PlannerIconField, PLANNER_DEFAULT_ICONS } from '../components/ui/PlannerIconField'
@@ -32,6 +37,9 @@ const statusColors: Record<TaskStatus, string> = {
     'in-progress': '#3b82f6',
     review: '#f59e0b',
     done: '#22c55e',
+    blocked: '#ef4444',
+    planning: '#818cf8',
+    'permits-awaited': '#f59e0b',
 }
 
 const statusDotClass: Record<TaskStatus, string> = {
@@ -39,6 +47,9 @@ const statusDotClass: Record<TaskStatus, string> = {
     'in-progress': 'bg-status-amber',
     review: 'bg-status-blue',
     done: 'bg-status-green',
+    blocked: 'bg-red-500',
+    planning: 'bg-indigo-400',
+    'permits-awaited': 'bg-amber-500',
 }
 
 const statusBorderClass: Record<TaskStatus, string> = {
@@ -46,6 +57,9 @@ const statusBorderClass: Record<TaskStatus, string> = {
     'in-progress': 'border-l-status-amber',
     review: 'border-l-status-blue',
     done: 'border-l-status-green',
+    blocked: 'border-l-red-500',
+    planning: 'border-l-indigo-400',
+    'permits-awaited': 'border-l-amber-500',
 }
 
 function getErrorMessage(error: unknown, fallback: string) {
@@ -60,6 +74,7 @@ export function PersonalTasksPage() {
 
     const personalTasks = usePersonalTasks()
 
+    const [viewMode, setViewMode] = useState<'list' | 'kanban' | 'timeline'>('list')
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
     const [editingTask, setEditingTask] = useState<DBPersonalTask | null>(null)
     const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
@@ -82,6 +97,9 @@ export function PersonalTasksPage() {
         'in-progress': t('planner', 'task.status.inProgress'),
         review: t('planner', 'task.status.review'),
         done: t('planner', 'task.status.done'),
+        blocked: 'Blocked',
+        planning: 'Planning',
+        'permits-awaited': 'Permits awaited',
     }
 
     useEffect(() => {
@@ -187,146 +205,230 @@ export function PersonalTasksPage() {
         }
     }
 
+    const handleAddTaskInStatus = (status: TaskStatus) => {
+        setFormData(current => ({
+            ...current,
+            status
+        }))
+        setIsAddModalOpen(true)
+    }
+
+    const handleUpdateStatus = async (id: string, status: TaskStatus) => {
+        try {
+            await updatePersonalTask(id, { status })
+            showToast(t('common', 'toast.updated'), { variant: 'success' })
+        } catch (error) {
+            showToast(getErrorMessage(error, t('common', 'toast.error')), { variant: 'error' })
+        }
+    }
+
     return (
         <div className="space-y-6 animate-fade-in">
+            {/* Header section */}
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-primary">{t('planner', 'personalTask.title')}</h1>
                     <p className="mt-1 text-secondary">{t('common', 'app.taskCount', { count: personalTasks.length })}</p>
                 </div>
-                <Button onClick={() => setIsAddModalOpen(true)} leftIcon={<Plus className="h-4 w-4" />}>
-                    {t('planner', 'personalTask.create')}
-                </Button>
-            </div>
+                <div className="flex items-center gap-3">
+                    {/* View Switcher Tabs */}
+                    <div className="flex bg-surface-200 p-0.5 rounded-lg border border-[var(--border-subtle)] text-xs font-semibold">
+                        <button
+                            onClick={() => setViewMode('list')}
+                            className={cn(
+                                "flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all",
+                                viewMode === 'list' 
+                                    ? "bg-surface-50 text-text-primary shadow-sm" 
+                                    : "text-text-muted hover:text-text-primary"
+                            )}
+                        >
+                            <List className="h-3.5 w-3.5" />
+                            <span>List</span>
+                        </button>
+                        <button
+                            onClick={() => setViewMode('kanban')}
+                            className={cn(
+                                "flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all",
+                                viewMode === 'kanban' 
+                                    ? "bg-surface-50 text-text-primary shadow-sm" 
+                                    : "text-text-muted hover:text-text-primary"
+                            )}
+                        >
+                            <LayoutGrid className="h-3.5 w-3.5" />
+                            <span>Kanban</span>
+                        </button>
+                        <button
+                            onClick={() => setViewMode('timeline')}
+                            className={cn(
+                                "flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all",
+                                viewMode === 'timeline' 
+                                    ? "bg-surface-50 text-text-primary shadow-sm" 
+                                    : "text-text-muted hover:text-text-primary"
+                            )}
+                        >
+                            <BarChart3 className="h-3.5 w-3.5" />
+                            <span>Timeline</span>
+                        </button>
+                    </div>
 
-            <div className="flex flex-wrap gap-2">
-                {(['all', 'todo', 'in-progress', 'review', 'done'] as const).map((status) => (
-                    <Button
-                        key={status}
-                        variant={filter === status ? 'primary' : 'secondary'}
-                        size="sm"
-                        onClick={() => setFilter(status)}
-                    >
-                        {status === 'all' ? t('common', 'common.all') : statusLabels[status]}
+                    <Button onClick={() => setIsAddModalOpen(true)} leftIcon={<Plus className="h-4 w-4" />}>
+                        {t('planner', 'personalTask.create')}
                     </Button>
-                ))}
+                </div>
             </div>
 
-            {filteredTasks.length === 0 ? (
-                <EmptyState
-                    icon={<ListTodo className="h-8 w-8 text-tertiary" />}
-                    title={filter === 'all' ? t('planner', 'personalTask.emptyTitle') : t('common', 'app.noTasksForFilter')}
-                    description={t('planner', 'personalTask.emptyDescription')}
-                    action={
-                        filter === 'all' && (
-                            <Button onClick={() => setIsAddModalOpen(true)} leftIcon={<Plus className="h-4 w-4" />}>
-                                {t('common', 'app.addFirstTask')}
-                            </Button>
-                        )
-                    }
-                />
-            ) : (
-                <div className="space-y-3">
-                    <AnimatePresence mode="popLayout">
-                        {filteredTasks.map((task) => (
-                            <motion.div
-                                key={task.id}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, x: -10 }}
-                                layout
+            {/* List View */}
+            {viewMode === 'list' && (
+                <>
+                    <div className="flex flex-wrap gap-2">
+                        {(['all', 'todo', 'in-progress', 'review', 'done', 'blocked', 'planning', 'permits-awaited'] as const).map((status) => (
+                            <Button
+                                key={status}
+                                variant={filter === status ? 'primary' : 'secondary'}
+                                size="sm"
+                                onClick={() => setFilter(status)}
                             >
-                                <Card
-                                    className={cn(
-                                        'group relative border-l-2 transition-colors',
-                                        statusBorderClass[task.status],
-                                        task.status === 'done' && 'opacity-60',
-                                    )}
-                                >
-                                    {task.isPriority && (
-                                        <span className="absolute top-3 right-12 h-1.5 w-1.5 rounded-full bg-status-amber" />
-                                    )}
-                                    <div className="flex items-start gap-4">
-                                        <div className="mt-1.5 flex flex-shrink-0 items-center gap-2">
-                                            <span className={cn('h-2 w-2 rounded-full', statusDotClass[task.status])} />
-                                            <button
-                                                type="button"
-                                                onClick={() => void toggleTaskStatus(task)}
-                                                disabled={togglingTaskId === task.id}
-                                            >
-                                                {task.status === 'done' ? (
-                                                    <CheckCircle className="h-5 w-5 text-status-green" />
-                                                ) : (
-                                                    <Circle className="h-5 w-5 text-text-muted transition-colors hover:text-text-primary" />
-                                                )}
-                                            </button>
-                                        </div>
-
-                                        <div
-                                            className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-surface-100"
-                                            style={{ color: statusColors[task.status] }}
-                                        >
-                                            <PlannerEntityIcon
-                                                icon={task.icon}
-                                                fallbackIcon={PLANNER_DEFAULT_ICONS.personalTask}
-                                                size={18}
-                                                color={statusColors[task.status]}
-                                            />
-                                        </div>
-
-                                        <div className="min-w-0 flex-1">
-                                            <p
-                                                className={cn(
-                                                    'font-medium',
-                                                    task.status === 'done'
-                                                        ? 'text-secondary line-through'
-                                                        : 'text-primary',
-                                                )}
-                                            >
-                                                {task.text}
-                                            </p>
-
-                                            {task.note && (
-                                                <p className="mt-1 line-clamp-2 text-sm text-secondary">
-                                                    {task.note}
-                                                </p>
-                                            )}
-
-                                            <div className="mt-2 flex flex-wrap items-center gap-3">
-                                                {task.dueDateISO && (
-                                                    <span className="flex items-center gap-1 font-mono text-sm text-text-muted">
-                                                        <Clock className="h-3.5 w-3.5" />
-                                                        {formatDateDisplay(task.dueDateISO)}
-                                                    </span>
-                                                )}
-                                                <Badge color={statusColors[task.status]}>
-                                                    {statusLabels[task.status]}
-                                                </Badge>
-                                            </div>
-                                        </div>
-
-                                        <ExternalSearchButtons title={task.text} description={task.note} />
-
-                                        <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                                            <IconButton size="sm" onClick={() => openEditModal(task)}>
-                                                <Edit2 className="h-4 w-4" />
-                                            </IconButton>
-                                            <IconButton
-                                                size="sm"
-                                                variant="danger"
-                                                onClick={() => setDeleteConfirm(task.id)}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </IconButton>
-                                        </div>
-                                    </div>
-                                </Card>
-                            </motion.div>
+                                {status === 'all' ? t('common', 'common.all') : statusLabels[status]}
+                            </Button>
                         ))}
-                    </AnimatePresence>
-                </div>
+                    </div>
+
+                    {filteredTasks.length === 0 ? (
+                        <EmptyState
+                            icon={<ListTodo className="h-8 w-8 text-tertiary" />}
+                            title={filter === 'all' ? t('planner', 'personalTask.emptyTitle') : t('common', 'app.noTasksForFilter')}
+                            description={t('planner', 'personalTask.emptyDescription')}
+                            action={
+                                filter === 'all' && (
+                                    <Button onClick={() => setIsAddModalOpen(true)} leftIcon={<Plus className="h-4 w-4" />}>
+                                        {t('common', 'app.addFirstTask')}
+                                    </Button>
+                                )
+                            }
+                        />
+                    ) : (
+                        <div className="space-y-3">
+                            <AnimatePresence mode="popLayout">
+                                {filteredTasks.map((task) => (
+                                    <motion.div
+                                        key={task.id}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, x: -10 }}
+                                        layout
+                                    >
+                                        <Card
+                                            className={cn(
+                                                'group relative border-l-2 transition-colors',
+                                                statusBorderClass[task.status],
+                                                task.status === 'done' && 'opacity-60',
+                                            )}
+                                        >
+                                            {task.isPriority && (
+                                                <span className="absolute top-3 right-12 h-1.5 w-1.5 rounded-full bg-status-amber" />
+                                            )}
+                                            <div className="flex items-start gap-4">
+                                                <div className="mt-1.5 flex flex-shrink-0 items-center gap-2">
+                                                    <span className={cn('h-2 w-2 rounded-full', statusDotClass[task.status])} />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => void toggleTaskStatus(task)}
+                                                        disabled={togglingTaskId === task.id}
+                                                    >
+                                                        {task.status === 'done' ? (
+                                                            <CheckCircle className="h-5 w-5 text-status-green" />
+                                                        ) : (
+                                                            <Circle className="h-5 w-5 text-text-muted transition-colors hover:text-text-primary" />
+                                                        )}
+                                                    </button>
+                                                </div>
+
+                                                <div
+                                                    className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-surface-100"
+                                                    style={{ color: statusColors[task.status] }}
+                                                >
+                                                    <PlannerEntityIcon
+                                                        icon={task.icon}
+                                                        fallbackIcon={PLANNER_DEFAULT_ICONS.personalTask}
+                                                        size={18}
+                                                        color={statusColors[task.status]}
+                                                    />
+                                                </div>
+
+                                                <div className="min-w-0 flex-1">
+                                                    <p
+                                                        className={cn(
+                                                            'font-medium',
+                                                            task.status === 'done'
+                                                                ? 'text-secondary line-through'
+                                                                : 'text-primary',
+                                                        )}
+                                                    >
+                                                        {task.text}
+                                                    </p>
+
+                                                    {task.note && (
+                                                        <p className="mt-1 line-clamp-2 text-sm text-secondary">
+                                                            {task.note}
+                                                        </p>
+                                                    )}
+
+                                                    <div className="mt-2 flex flex-wrap items-center gap-3">
+                                                        {task.dueDateISO && (
+                                                            <span className="flex items-center gap-1 font-mono text-sm text-text-muted">
+                                                                <Clock className="h-3.5 w-3.5" />
+                                                                {formatDateDisplay(task.dueDateISO)}
+                                                            </span>
+                                                        )}
+                                                        <Badge color={statusColors[task.status]}>
+                                                            {statusLabels[task.status]}
+                                                        </Badge>
+                                                    </div>
+                                                </div>
+
+                                                <ExternalSearchButtons title={task.text} description={task.note} />
+
+                                                <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                                    <IconButton size="sm" onClick={() => openEditModal(task)}>
+                                                        <Edit2 className="h-4 w-4" />
+                                                    </IconButton>
+                                                    <IconButton
+                                                        size="sm"
+                                                        variant="danger"
+                                                        onClick={() => setDeleteConfirm(task.id)}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </IconButton>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </div>
+                    )}
+                </>
             )}
 
+            {/* Kanban Pano Görünümü */}
+            {viewMode === 'kanban' && (
+                <KanbanBoard
+                    tasks={personalTasks}
+                    onUpdateStatus={handleUpdateStatus}
+                    onSelectTask={openEditModal}
+                    onAddTaskInStatus={handleAddTaskInStatus}
+                />
+            )}
+
+            {/* Timeline Görünümü */}
+            {viewMode === 'timeline' && (
+                <TimelineView
+                    tasks={personalTasks}
+                    onSelectTask={openEditModal}
+                />
+            )}
+
+            {/* Task Add / Edit Modal */}
             <Modal
                 isOpen={isAddModalOpen || !!editingTask}
                 onClose={closeModal}
@@ -392,6 +494,7 @@ export function PersonalTasksPage() {
                 </form>
             </Modal>
 
+            {/* Delete Confirmation Modal */}
             <Modal
                 isOpen={!!deleteConfirm}
                 onClose={() => setDeleteConfirm(null)}

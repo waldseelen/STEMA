@@ -2,7 +2,9 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '@/modules/auth/store/authStore'
-import { supabase } from '@/config/supabase'
+import { listOwnedRows, upsertOwnedRow, deleteOwnedRows } from '@/lib/cloud/firestoreRepo'
+import { ref, uploadBytes } from 'firebase/storage'
+import { storage } from '@/config/firebase'
 import { useLocale } from '@/i18n'
 import { 
   ArrowLeft, 
@@ -46,9 +48,8 @@ import { calculateMasteryScore } from '../lib/mastery'
 import { splitIntoChunksWithBoundaries, Chunk, ChunkMetadata } from '../lib/chunking'
 import { buildErrorIndex, matchChunkToConcepts, buildConceptKeywordMap } from '../lib/errorIndex'
 import { cleanLatex } from '../lib/latexCleaner'
-import ReactEChartsCore from 'echarts-for-react/lib/core'
-import { echarts } from '@/shared/lib/echarts'
-import { addEvent } from '@/db/planner/queries/eventQueries'
+import { eventBus } from '@/events'
+import { CalibrationChart, ErrorTypeChart } from '../components/StudyStatsChart'
 
 interface AttachedFile {
   id: string
@@ -242,50 +243,35 @@ export function LearnChat() {
       if (!user) return
 
       // 1. Fetch concepts
-      const { data: conceptData } = await supabase
-        .from('concepts')
-        .select('*')
-        .order('code', { ascending: true })
+      const conceptData = await listOwnedRows('concepts', { orderBy: 'code', ascending: true })
 
       // 2. Fetch error logs
-      const { data: errorLogsData } = await supabase
-        .from('error_logs')
-        .select('*')
-        .eq('user_id', user.id)
+      const errorLogsData = await listOwnedRows('error_logs')
       const currentErrors = errorLogsData || []
       setErrorLogs(currentErrors)
 
       // 3. Fetch tutor events
-      const { data: tutorEventsData } = await supabase
-        .from('tutor_events')
-        .select('*')
-        .eq('user_id', user.id)
+      const tutorEventsData = await listOwnedRows('tutor_events')
       const currentEvents = tutorEventsData || []
       setTutorEvents(currentEvents)
 
       // 4. Fetch all flashcards
-      const { data: allCardsData } = await supabase
-        .from('sr_cards')
-        .select('*')
-        .eq('user_id', user.id)
+      const allCardsData = await listOwnedRows('sr_cards')
       const currentAllCards = (allCardsData || []) as SRCard[]
       setAllCards(currentAllCards)
 
       // 5. Fetch concept mastery
-      const { data: masteryData } = await supabase
-        .from('concept_mastery')
-        .select('concept_id, score')
-        .eq('user_id', user.id)
+      const masteryData = await listOwnedRows('concept_mastery')
 
       const masteryMap: Record<string, number> = {}
-      masteryData?.forEach(m => {
+      masteryData?.forEach((m: any) => {
         masteryMap[m.concept_id] = Number(m.score)
       })
 
       // Resolve concepts list (use database or fallback)
       let resolvedConcepts: Concept[] = []
       if (conceptData && conceptData.length > 0) {
-        resolvedConcepts = conceptData.map(c => ({
+        resolvedConcepts = conceptData.map((c: any) => ({
           id: c.id,
           code: c.code,
           name: c.name,
@@ -306,20 +292,20 @@ export function LearnChat() {
       for (const concept of resolvedConcepts) {
         // Calculate Socratic successes
         const socraticSuccessCount = currentEvents.filter(
-          e => e.event_type === 'socratic_success' && e.payload?.concept_id === concept.id
+          (e: any) => e.event_type === 'socratic_success' && e.payload?.concept_id === concept.id
         ).length
 
         // Calculate Feynman best score
         const feynmanEvents = currentEvents.filter(
-          e => e.event_type === 'feynman_evaluation' && e.payload?.concept_id === concept.id
+          (e: any) => e.event_type === 'feynman_evaluation' && e.payload?.concept_id === concept.id
         )
         const maxFeynmanScore = feynmanEvents.length > 0
-          ? Math.max(0, ...feynmanEvents.map(e => Number(e.payload?.score || 0)))
+          ? Math.max(0, ...feynmanEvents.map((e: any) => Number(e.payload?.score || 0)))
           : 0
 
         // Calculate Card successes (Good or Easy rating reviews)
         const cardSuccessCount = currentEvents.filter(
-          e => e.event_type === 'flashcard_review' && 
+          (e: any) => e.event_type === 'flashcard_review' && 
                e.payload?.concept_id === concept.id && 
                (e.payload?.rating === 3 || e.payload?.rating === 4)
         ).length
@@ -334,15 +320,12 @@ export function LearnChat() {
         const oldScore = masteryMap[concept.id] || 0
         if (calculatedScore !== oldScore && concept.id.length > 10) { // check if valid UUID (fallback has short ids)
           try {
-            await supabase
-              .from('concept_mastery')
-              .upsert({
-                user_id: user.id,
-                concept_id: concept.id,
-                score: calculatedScore,
-                evidence_count: socraticSuccessCount + (feynmanEvents.length > 0 ? 1 : 0) + (cardSuccessCount > 0 ? 1 : 0),
-                updated_at: new Date().toISOString()
-              }, { onConflict: 'user_id,concept_id' })
+            await upsertOwnedRow('concept_mastery', {
+              id: `${user.id}_${concept.id}`,
+              concept_id: concept.id,
+              score: calculatedScore,
+              evidence_count: socraticSuccessCount + (feynmanEvents.length > 0 ? 1 : 0) + (cardSuccessCount > 0 ? 1 : 0),
+            })
           } catch (upsertErr) {
             console.error('Error upserting concept mastery:', upsertErr)
           }
@@ -362,21 +345,17 @@ export function LearnChat() {
       }
 
       // 7. Fetch documents
-      const { data: docData } = await supabase
-        .from('documents')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
+      const docData = await listOwnedRows('documents', { orderBy: 'created_at', ascending: false })
       if (docData) setDocuments(docData as DocumentRow[])
 
       // 8. Fetch due flashcards
-      const { data: cardData } = await supabase
-        .from('sr_cards')
-        .select('*')
-        .eq('user_id', user.id)
-        .lte('due_at', new Date().toISOString())
-        .order('due_at', { ascending: true })
-      if (cardData) setDueCards(cardData as SRCard[])
+      const cardData = await listOwnedRows('sr_cards')
+      if (cardData) {
+        const nowStr = new Date().toISOString()
+        const due = cardData.filter((card: any) => card.due_at <= nowStr)
+        due.sort((a: any, b: any) => new Date(a.due_at).getTime() - new Date(b.due_at).getTime())
+        setDueCards(due as SRCard[])
+      }
 
     } catch (err) {
       console.error('Error fetching workspace data:', err)
@@ -438,19 +417,14 @@ export function LearnChat() {
     if (!user) return
 
     try {
-      const { error } = await supabase
-        .from('tutor_events')
-        .insert({
-          user_id: user.id,
-          event_type: 'metacognitive_prediction',
-          payload: {
-            concept_id: selectedConceptId,
-            prediction: val,
-            timestamp: new Date().toISOString()
-          }
-        })
-
-      if (error) throw error
+      await upsertOwnedRow('tutor_events', {
+        event_type: 'metacognitive_prediction',
+        payload: {
+          concept_id: selectedConceptId,
+          prediction: val,
+          timestamp: new Date().toISOString()
+        }
+      })
 
       setShowMetacognitivePrompt(false)
       fetchWorkspaceData()
@@ -642,38 +616,27 @@ export function LearnChat() {
         throw new Error(isTr ? 'Dosyadan metin okunamadı veya dosya boş.' : 'No text could be extracted or the file is empty.')
       }
 
-      // 2. Upload file to Supabase Storage (optional / try-catch)
+      // 2. Upload file to Firebase Storage (optional / try-catch)
       setIngestProgress(isTr ? 'Ders notu kaydediliyor...' : 'Saving study material...')
       const filePath = `documents/${user.id}/${Date.now()}_${file.name}`
       
-      try {
-        await supabase.storage.createBucket('documents', { public: false })
-      } catch (err) {
-        // ignore error (probably already exists or lack permission)
-      }
-      
       let uploadError = null
       try {
-        const { error } = await supabase.storage.from('documents').upload(filePath, file)
-        if (error) uploadError = error
+        const fileRef = ref(storage, filePath)
+        await uploadBytes(fileRef, file)
       } catch (err) {
         uploadError = err
       }
 
       // 3. Insert record into documents table
-      const { data: docData, error: docError } = await supabase
-        .from('documents')
-        .insert({
-          user_id: user.id,
-          title: file.name,
-          file_path: uploadError ? `local_fallback/${file.name}` : filePath,
-          file_type: fileType,
-          size: file.size
-        })
-        .select()
-        .single()
-
-      if (docError) throw docError
+      const docPayload = {
+        title: file.name,
+        file_path: uploadError ? `local_fallback/${file.name}` : filePath,
+        file_type: fileType,
+        size: file.size
+      }
+      
+      const docData = await upsertOwnedRow('documents', docPayload)
       documentId = docData.id
 
       // 4. Send chunks to /api/documents/ingest for embedding extraction & storage
@@ -707,7 +670,7 @@ export function LearnChat() {
     } catch (err: any) {
       console.error('Ingestion failed:', err)
       if (documentId) {
-        await supabase.from('documents').delete().eq('id', documentId)
+        await deleteOwnedRows('documents', [{ column: 'id', value: documentId }])
       }
       alert(isTr ? `Yükleme başarısız oldu: ${err.message}` : `Upload failed: ${err.message}`)
       setIsIngesting(false)
@@ -1023,26 +986,21 @@ export function LearnChat() {
     const updates = scheduleFSRS(cardData, rating)
 
     try {
-      const { error: dbError } = await supabase
-        .from('sr_cards')
-        .update({
-          difficulty: updates.difficulty,
-          stability: updates.stability,
-          reps: updates.reps,
-          lapses: updates.lapses,
-          state: updates.state,
-          last_review: updates.last_review,
-          due_at: updates.due_at
-        })
-        .eq('id', card.id)
-
-      if (dbError) throw dbError
+      await upsertOwnedRow('sr_cards', {
+        id: card.id,
+        difficulty: updates.difficulty,
+        stability: updates.stability,
+        reps: updates.reps,
+        lapses: updates.lapses,
+        state: updates.state,
+        last_review: updates.last_review,
+        due_at: updates.due_at
+      })
 
       if (updates.due_at) {
         const dueDate = new Date(updates.due_at)
         const conceptName = concepts.find(c => c.id === card.concept_id)?.name || 'Hata Tekrarı'
-        await addEvent({
-          type: 'event',
+        await eventBus.publish('LEARN_EVENT_CREATED', {
           title: `Tekrar Görevi: ${conceptName}`,
           dateISO: dueDate.toISOString().slice(0, 10),
           description: `FSRS spaced repetition tekrar görevi.`,
@@ -1052,8 +1010,7 @@ export function LearnChat() {
 
       const user = useAuthStore.getState().session?.user
       if (user) {
-        await supabase.from('tutor_events').insert({
-          user_id: user.id,
+        await upsertOwnedRow('tutor_events', {
           event_type: 'flashcard_review',
           payload: {
             card_id: card.id,
@@ -1832,7 +1789,7 @@ export function LearnChat() {
                           <button
                             onClick={async () => {
                               try {
-                                await supabase.from('documents').delete().eq('id', doc.id)
+                                await deleteOwnedRows('documents', [{ column: 'id', value: doc.id }])
                                 fetchWorkspaceData()
                               } catch (err) {
                                 console.error('Error deleting document:', err)
@@ -2132,79 +2089,7 @@ export function LearnChat() {
                           })
                         })
 
-                        if (calibrationPoints.length === 0) {
-                          return (
-                            <div className="text-center py-8 border border-dashed border-[var(--border-subtle)] rounded-lg p-5 bg-[var(--bg-surface-100)]/30 space-y-2">
-                              <TrendingUp className="h-8 w-8 text-[var(--text-muted)] mx-auto" />
-                              <h4 className="text-xs font-bold text-[var(--text-primary)]">{isTr ? 'Metakognitif Veri Bekleniyor' : 'Calibration Data Pending'}</h4>
-                              <p className="text-2xs text-[var(--text-secondary)] leading-relaxed">
-                                {isTr
-                                  ? 'Sokratik sohbet başlangıcında kendinize verdiğiniz güven puanları (1-5) ile çözümlerdeki ipucu/hata sıklığınız karşılaştırılarak kalibrasyon grafiğinde listelenecektir.'
-                                  : 'Start Socratic chat, rate your confidence, and complete tasks to see calibration results here.'}
-                              </p>
-                            </div>
-                          )
-                        }
-
-                        const scatterOption = {
-                          grid: { top: 30, right: 20, bottom: 40, left: 30 },
-                          tooltip: {
-                            trigger: 'item',
-                            formatter: (params: any) => {
-                              if (params.seriesType === 'line') return ''
-                              const data = params.data
-                              return `<strong>${data.name}</strong><br/>` +
-                                     (isTr ? `Tahmin (Güven): ${data.value[0]}<br/>Gerçek Performans: ${data.value[1]}`
-                                           : `Prediction: ${data.value[0]}<br/>Actual: ${data.value[1]}`)
-                            }
-                          },
-                          xAxis: {
-                            name: isTr ? 'Tahmin' : 'Pred',
-                            nameLocation: 'middle',
-                            nameGap: 20,
-                            min: 1,
-                            max: 5,
-                            interval: 1,
-                            splitLine: { show: true, lineStyle: { type: 'dashed', color: 'var(--border-subtle)' } },
-                            axisLabel: { fontSize: 9 }
-                          },
-                          yAxis: {
-                            name: isTr ? 'Gerçek' : 'Act',
-                            nameLocation: 'end',
-                            min: 1,
-                            max: 5,
-                            interval: 1,
-                            splitLine: { show: true, lineStyle: { type: 'dashed', color: 'var(--border-subtle)' } },
-                            axisLabel: { fontSize: 9 }
-                          },
-                          series: [
-                            {
-                              type: 'scatter',
-                              data: calibrationPoints,
-                              symbolSize: 8,
-                              itemStyle: { color: '#3b82f6' }
-                            },
-                            {
-                              type: 'line',
-                              data: [[1, 1], [5, 5]],
-                              silent: true,
-                              lineStyle: { type: 'dashed', color: '#94a3b8', width: 1 },
-                              symbol: 'none'
-                            }
-                          ]
-                        }
-
-                        return (
-                          <div className="border border-[var(--border-subtle)] rounded-lg p-3 bg-[var(--bg-primary)]">
-                            <h4 className="text-2xs font-bold uppercase tracking-wider text-[var(--text-secondary)] font-mono mb-2">Tahmin vs Gerçek Başarı (Kalibrasyon)</h4>
-                            <ReactEChartsCore echarts={echarts} option={scatterOption} style={{ height: '220px', width: '100%' }} />
-                            <p className="text-[9px] text-[var(--text-muted)] leading-relaxed mt-2">
-                              {isTr
-                                ? 'Grafikteki kesikli çizgi mükemmel kalibrasyonu gösterir. Bu çizgiye yakın olmak, öğrenme sürecinde kendi bilginizi ne derece doğru değerlendirdiğinizi simgeler.'
-                                : 'The dashed line indicates perfect metacognitive calibration. Closer dots mean accurate self-assessment.'}
-                            </p>
-                          </div>
-                        )
+                        return <CalibrationChart isTr={isTr} calibrationPoints={calibrationPoints} />
                       })()}
                     </div>
                   )}
@@ -2212,83 +2097,7 @@ export function LearnChat() {
                   {/* Sub-tab 3: Error Cluster Pie Chart */}
                   {conceptsSubTab === 'errors' && (
                     <div className="space-y-4">
-                      {(() => {
-                        const counts = { conceptual: 0, procedural: 0, calculation: 0, strategic: 0 }
-                        errorLogs.forEach(log => {
-                          const type = log.error_type as keyof typeof counts
-                          if (counts[type] !== undefined) counts[type]++
-                        })
-
-                        const errorData = [
-                          { value: counts.conceptual, name: isTr ? 'Kavramsal' : 'Conceptual', itemStyle: { color: '#ef4444' } },
-                          { value: counts.procedural, name: isTr ? 'Yöntemsel' : 'Procedural', itemStyle: { color: '#f59e0b' } },
-                          { value: counts.calculation, name: isTr ? 'İşlem' : 'Calculation', itemStyle: { color: '#3b82f6' } },
-                          { value: counts.strategic, name: isTr ? 'Stratejik' : 'Strategic', itemStyle: { color: '#8b5cf6' } }
-                        ].filter(item => item.value > 0)
-
-                        if (errorData.length === 0) {
-                          return (
-                            <div className="text-center py-8 border border-dashed border-[var(--border-subtle)] rounded-lg p-5 bg-[var(--bg-surface-100)]/30 space-y-2">
-                              <PieChart className="h-8 w-8 text-[var(--text-muted)] mx-auto" />
-                              <h4 className="text-xs font-bold text-[var(--text-primary)]">{isTr ? 'Hata Dağılım Verisi Yok' : 'No Errors Tracked'}</h4>
-                              <p className="text-2xs text-[var(--text-secondary)] leading-relaxed">
-                                {isTr
-                                  ? 'Sokratik derslerde yaptığınız hatalar yapay zeka tarafından kategorize edilerek hata dağılım pastasından analiz edilecektir.'
-                                  : 'Mistakes made during Socratic learning will be categorized and analyzed here.'}
-                              </p>
-                            </div>
-                          )
-                        }
-
-                        const pieOption = {
-                          grid: { top: 10, bottom: 10, left: 10, right: 10 },
-                          tooltip: {
-                            trigger: 'item',
-                            formatter: '{b}: {c} ({d}%)'
-                          },
-                          legend: {
-                            orient: 'horizontal',
-                            bottom: 0,
-                            itemWidth: 8,
-                            itemHeight: 8,
-                            textStyle: { fontSize: 8, color: 'var(--text-secondary)' }
-                          },
-                          series: [
-                            {
-                              name: isTr ? 'Hata Türleri' : 'Error Types',
-                              type: 'pie',
-                              radius: ['35%', '65%'],
-                              center: ['50%', '42%'],
-                              avoidLabelOverlap: false,
-                              label: {
-                                show: false,
-                                position: 'center'
-                              },
-                              emphasis: {
-                                label: {
-                                  show: true,
-                                  fontSize: 10,
-                                  fontWeight: 'bold',
-                                  formatter: '{b}\n{c} ({d}%)'
-                                }
-                              },
-                              data: errorData
-                            }
-                          ]
-                        }
-
-                        return (
-                          <div className="border border-[var(--border-subtle)] rounded-lg p-3 bg-[var(--bg-primary)]">
-                            <h4 className="text-2xs font-bold uppercase tracking-wider text-[var(--text-secondary)] font-mono mb-2">Hata Türü Dağılım Analitiği</h4>
-                            <ReactEChartsCore echarts={echarts} option={pieOption} style={{ height: '200px', width: '100%' }} />
-                            <p className="text-[9px] text-[var(--text-muted)] leading-relaxed mt-2">
-                              {isTr
-                                ? 'Hata türlerinizi öğrenerek hangi aşamalarda aksadığınızı görebilir ve Feynman modunda zayıf noktalarınıza ağırlık verebilirsiniz.'
-                                : 'Track your mistakes by type to identify and address specific learning bottlenecks.'}
-                            </p>
-                          </div>
-                        )
-                      })()}
+                      <ErrorTypeChart isTr={isTr} errorLogs={errorLogs} />
                     </div>
                   )}
                 </div>

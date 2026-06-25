@@ -5,7 +5,7 @@
  * Timer başlatma/durdurma olaylarında çalışır.
  */
 
-import type { Rule, RuleActionConfig, RuleCondition, RuleTrigger } from '@/db/types'
+import type { Rule, RuleActionConfig, RuleCondition, RuleTrigger } from '@/db/time-tracking/types'
 import { invalidateTables } from '@/lib/cloud/queryInvalidation'
 import {
     trackerCreateRule,

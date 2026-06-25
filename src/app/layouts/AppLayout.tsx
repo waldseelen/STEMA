@@ -20,7 +20,7 @@ import { Header } from '../components/Header'
 import { RightPanel } from '../components/RightPanel'
 import { Sidebar } from '../components/SidebarNew'
 import { PageTransition } from './PageTransition'
-import { PomodoroRuntime } from '@/modules/tracker/components/PomodoroRuntime'
+import { PomodoroRuntime } from '@/modules/tracker/components/features/PomodoroRuntime'
 import { useReminderScheduler } from '@/modules/tracker/lib/useReminderScheduler'
 
 export function AppLayout() {

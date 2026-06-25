@@ -5,15 +5,15 @@ import {
     useAllTags,
 } from '@/db/time-tracking/queries/activityQueries'
 import { deleteReminder, useReminders } from '@/db/time-tracking/queries/reminderQueries'
-import type { Category, Reminder, Tag as TagType } from '@/db/types'
+import type { Category, Reminder, Tag as TagType } from '@/db/time-tracking/types'
 import { useTranslations } from '@/i18n'
 import { EntityIcon, useToast } from '@/shared/components'
 import { ArrowLeft, Bell, Inbox, Plus, Tag, Trash2 } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CategoryEditModal } from '../components/CategoryEditModal'
-import { ReminderEditModal } from '../components/ReminderEditModal'
-import { TagEditModal } from '../components/TagEditModal'
+import { CategoryEditModal } from '../components/features/CategoryEditModal'
+import { ReminderEditModal } from '../components/features/ReminderEditModal'
+import { TagEditModal } from '../components/features/TagEditModal'
 
 function getErrorMessage(error: unknown, fallback: string) {
     return error instanceof Error && error.message.trim() ? error.message : fallback

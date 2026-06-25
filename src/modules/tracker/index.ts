@@ -13,33 +13,33 @@ export { StatsPage } from './pages/StatsPage'
 export { TrackerPage } from './pages/TrackerPage'
 
 // Components (Aşama 1)
-export { ActivityCard } from './components/ActivityCard'
-export { ActivityGrid } from './components/ActivityGrid'
-export { RunningTimerBar } from './components/RunningTimerBar'
-export { TimerControls } from './components/TimerControls'
+export { ActivityCard } from './components/ui/ActivityCard'
+export { ActivityGrid } from './components/features/ActivityGrid'
+export { RunningTimerBar } from './components/features/RunningTimerBar'
+export { TimerControls } from './components/ui/TimerControls'
 
 // Components (Aşama 2)
-export { RecordEditModal } from './components/RecordEditModal'
-export { RecordItem } from './components/RecordItem'
-export { RecordsFilter } from './components/RecordsFilter'
-export type { RecordsFilterState } from './components/RecordsFilter'
-export { RecordsGroupByDate } from './components/RecordsGroupByDate'
+export { RecordEditModal } from './components/features/RecordEditModal'
+export { RecordItem } from './components/ui/RecordItem'
+export { RecordsFilter } from './components/features/RecordsFilter'
+export type { RecordsFilterState } from './components/features/RecordsFilter'
+export { RecordsGroupByDate } from './components/features/RecordsGroupByDate'
 
 // Components (Aşama 3)
-export { ActivityPieChart } from './components/ActivityPieChart'
-export { DailyBarChart } from './components/DailyBarChart'
-export { DateRangePicker } from './components/DateRangePicker'
-export type { PeriodKey } from './components/DateRangePicker'
-export { StatsSummaryCard } from './components/StatsSummaryCard'
+export { ActivityPieChart } from './components/features/ActivityPieChart'
+export { DailyBarChart } from './components/features/DailyBarChart'
+export { DateRangePicker } from './components/ui/DateRangePicker'
+export type { PeriodKey } from './components/ui/DateRangePicker'
+export { StatsSummaryCard } from './components/ui/StatsSummaryCard'
 
 // Components (Aşama 4)
-export { GoalCard } from './components/GoalCard'
-export { GoalEditModal } from './components/GoalEditModal'
-export { GoalProgressBadge } from './components/GoalProgressBadge'
+export { GoalCard } from './components/ui/GoalCard'
+export { GoalEditModal } from './components/features/GoalEditModal'
+export { GoalProgressBadge } from './components/ui/GoalProgressBadge'
 
 // Components (Aşama 5)
-export { ActivityEditModal } from './components/ActivityEditModal'
-export { CategoryEditModal } from './components/CategoryEditModal'
+export { ActivityEditModal } from './components/features/ActivityEditModal'
+export { CategoryEditModal } from './components/features/CategoryEditModal'
 
 // Store (Aşama 1)
 export { useTrackerUIStore } from './store/trackerUIStore'

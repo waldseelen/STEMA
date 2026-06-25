@@ -4,11 +4,11 @@ import { useTranslations } from '@/i18n'
 import { ArrowLeft, BarChart2, Inbox } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ActivityPieChart } from '../components/ActivityPieChart'
-import { DailyBarChart } from '../components/DailyBarChart'
-import { DateRangePicker, getPeriodRange, type PeriodKey } from '../components/DateRangePicker'
-import { StatsSummaryCard } from '../components/StatsSummaryCard'
-import { TagValueBreakdown } from '../components/TagValueBreakdown'
+import { ActivityPieChart } from '../components/features/ActivityPieChart'
+import { DailyBarChart } from '../components/features/DailyBarChart'
+import { DateRangePicker, getPeriodRange, type PeriodKey } from '../components/ui/DateRangePicker'
+import { StatsSummaryCard } from '../components/ui/StatsSummaryCard'
+import { TagValueBreakdown } from '../components/features/TagValueBreakdown'
 
 export function StatsPage() {
     const t = useTranslations(['common', 'tracker'])

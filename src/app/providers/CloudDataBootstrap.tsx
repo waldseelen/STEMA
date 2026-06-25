@@ -12,6 +12,8 @@ import { Database, RefreshCw, ShieldAlert, UploadCloud } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useAuthStore } from '@/modules/auth/store/authStore'
 import { captureSecureException } from '@/modules/auth/lib/telemetry'
+import { eventBus } from '@/events'
+import { addEvent } from '@/db/planner/queries/eventQueries'
 
 function SummaryLine({
     label,
@@ -43,6 +45,27 @@ export function CloudDataBootstrap() {
     const [isWorking, setIsWorking] = useState(false)
     const [summary, setSummary] = useState<DomainSyncSummary | null>(null)
     const bootstrappedSessionRef = useRef<string | null>(null)
+
+    // Listen for cross-module learning calendar events (m12n decoupled event broker)
+    useEffect(() => {
+        const sub = eventBus.subscribe('LEARN_EVENT_CREATED', async (payload) => {
+            try {
+                await addEvent({
+                    type: 'event',
+                    title: payload.title,
+                    dateISO: payload.dateISO,
+                    description: payload.description,
+                    color: payload.color,
+                })
+            } catch (err) {
+                console.error('Failed to auto-schedule planner event from learning review:', err)
+            }
+        })
+
+        return () => {
+            sub.unsubscribe()
+        }
+    }, [])
 
     useEffect(() => {
         if (!authInitialized) {

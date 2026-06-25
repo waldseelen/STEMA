@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
+import { db, collection, doc, getDoc, getDocs, query, where, limit, addDoc, getUserIdFromToken } from './lib/firebaseEdge'
 import { streamLLM, callLLM } from './lib/llmClient'
 import { calculateCost } from './lib/config'
 
@@ -11,7 +11,7 @@ Görevin, öğrenciye doğrudan cevap veya tam çözüm sunmak YERİNE, onu ipu�
 
 Uyman gereken katı kurallar:
 1. KESİNLİKLE doğrudan çözüm, sonuç veya kod satırı verme.
-2. Öğrencinin seviyesini anlamak için sorular sor (örn. "Bu formülü daha önce gördün mü?", "İlk adım olarak ne yapmayı düşündün?").
+2. Öğrencinin seviyesini anlamak için sorular sor (örn. "Bu formülü daha önce gördün mi?", "İlk adım olarak ne yapmayı düşündün?").
 3. Matematiksel ifadeleri mutlaka satır içi $...$ veya blok $$...$$ LaTeX formatında yaz.
 4. Kodlama sorularında tüm kodu yazma; mantığı açıklatacak sorular sor veya küçük kod blokları vererek eksiği onun tamamlamasını iste.
 5. Yanıtlarını kısa, net ve yönlendirici tut. Tek seferde çok fazla bilgi verme.
@@ -43,6 +43,20 @@ Uyman gereken katı kurallar:
 interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
   content: string
+}
+
+function cosineSimilarity(a: number[], b: number[]): number {
+  if (a.length !== b.length) return 0
+  let dotProduct = 0
+  let mA = 0
+  let mB = 0
+  for (let i = 0; i < a.length; i++) {
+    dotProduct += a[i] * b[i]
+    mA += a[i] * a[i]
+    mB += b[i] * b[i]
+  }
+  if (mA === 0 || mB === 0) return 0
+  return dotProduct / (Math.sqrt(mA) * Math.sqrt(mB))
 }
 
 export default async function handler(req: Request): Promise<Response> {
@@ -80,78 +94,38 @@ export default async function handler(req: Request): Promise<Response> {
       })
     }
 
-    // 1. Initialize Supabase Client with User's JWT (to respect RLS) or Service Role Key
     const authHeader = req.headers.get('Authorization') || req.headers.get('authorization')
-    const token = authHeader ? authHeader.replace('Bearer ', '') : null
+    const userId = getUserIdFromToken(authHeader)
 
-    // Use service role if local bypass or mock token is detected, otherwise use client token
-    const isMockUser = token === 'mock-session-token' || !token
-    const supabaseUrl = process.env.VITE_SUPABASE_URL
-    const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-    // Fallback logic for keys
-    const activeKey = (isMockUser && supabaseServiceKey) ? supabaseServiceKey : (supabaseAnonKey || '')
-    const supabaseClient = createClient(supabaseUrl || '', activeKey, {
-      global: {
-        headers: (!isMockUser && token) ? { Authorization: `Bearer ${token}` } : {},
-      },
-    })
-
-    // 2. Select Model based on Routing Logic (Spec 4.5)
-    const lowerMessage = userMessage.toLowerCase()
-    const isCoding = /kod|programlama|react|html|css|javascript|typescript|python|function|class|dizi|array|db|database|sql|api|json|bug|hata/.test(lowerMessage)
-    const isMathOrPhysics = /limit|türev|integral|fizik|kimya|biyoloji|formül|denklem|ispat|kanıt|hesapla|çöz|teorem|matematik|algebra|geometri/.test(lowerMessage)
-
-    let targetModel: 'claude' | 'gemini' | 'deepseek' = 'deepseek'
-    if (isCoding) {
-      targetModel = 'claude'
-    } else if (isMathOrPhysics) {
-      targetModel = 'gemini'
-    }
-
-    // 3. Check for OpenRouter API key (single provider)
-    const openrouterKey = process.env.OPENROUTER_API_KEY
-    const isMockMode = !openrouterKey
-    console.log(`[AI Router] Target: ${targetModel}, Mock Mode: ${isMockMode}`)
-
-    // Create stream
     const encoder = new TextEncoder()
     const { readable, writable } = new TransformStream()
     const writer = writable.getWriter()
 
-    // 4. Run database setup asynchronously (e.g. creating session if needed)
-    let activeSessionId = sessionId
-    let userId = '00000000-0000-0000-0000-000000000000'
+    const targetModel = 'deepseek/deepseek-v4-flash'
+    const isMockMode = process.env.VITE_ENABLE_MOCK_AI === 'true'
 
-    // Try to resolve user id
-    if (token && token !== 'mock-session-token') {
+    async function runAI() {
       try {
-        const { data: { user } } = await supabaseClient.auth.getUser()
-        if (user) userId = user.id
-      } catch (err) {
-        console.error('Error fetching user from auth token:', err)
-      }
-    }
+        let activeSessionId = sessionId
+        let promptTokensCount = 0
+        let completionTokensCount = 0
+        let completeResponse = ''
 
-    // Start background processing
-    const runAI = async () => {
-      let completeResponse = ''
-      let promptTokensCount = 0
-      let completionTokensCount = 0
-
-      try {
-        // 5.3: Fetch Concept Mastery Score
+        // RAG Context
+        let searchContext = ''
         let masteryScore: number | null = null
+
+        // Fetch concept mastery
         if (conceptId && userId && userId !== '00000000-0000-0000-0000-000000000000') {
           try {
-            const { data: masteryData } = await supabaseClient
-              .from('concept_mastery')
-              .select('score')
-              .eq('user_id', userId)
-              .eq('concept_id', conceptId)
-              .maybeSingle()
-            if (masteryData) {
+            const masterySnap = await getDocs(query(
+              collection(db, 'concept_mastery'),
+              where('user_id', '==', userId),
+              where('concept_id', '==', conceptId),
+              limit(1)
+            ))
+            if (!masterySnap.empty) {
+              const masteryData = masterySnap.docs[0].data()
               masteryScore = Number(masteryData.score)
             }
           } catch (masteryErr) {
@@ -159,7 +133,7 @@ export default async function handler(req: Request): Promise<Response> {
           }
         }
 
-        // Build dynamic system prompt based on mastery score
+        // Build dynamic system prompt
         let dynamicSystemPrompt = SOCRATIC_SYSTEM_PROMPT
         if (masteryScore !== null) {
           if (masteryScore >= 90) {
@@ -169,18 +143,17 @@ export default async function handler(req: Request): Promise<Response> {
           }
         }
 
-        // RAG: Fetch relevant document chunks using pgvector and match_document_chunks RPC
-        let searchContext = ''
+        // RAG: Fetch relevant document chunks
         const openrouterKey = process.env.OPENROUTER_API_KEY
         if (openrouterKey && userId && userId !== '00000000-0000-0000-0000-000000000000') {
           try {
-            // Check count of user documents first to avoid unnecessary embedding calls
-            const { count, error: countErr } = await supabaseClient
-              .from('documents')
-              .select('*', { count: 'exact', head: true })
-              .eq('user_id', userId)
+            const docSnap = await getDocs(query(
+              collection(db, 'documents'),
+              where('user_id', '==', userId),
+              limit(1)
+            ))
 
-            if (!countErr && count && count > 0) {
+            if (!docSnap.empty) {
               const embedResponse = await fetch('https://openrouter.ai/api/v1/embeddings', {
                 method: 'POST',
                 headers: {
@@ -196,17 +169,25 @@ export default async function handler(req: Request): Promise<Response> {
               if (embedResponse.ok) {
                 const embedData = await embedResponse.json()
                 const queryEmbedding = embedData.data?.[0]?.embedding
-                
-                if (queryEmbedding) {
-                  const { data: matchedChunks, error: rpcError } = await supabaseClient
-                    .rpc('match_document_chunks', {
-                      query_embedding: queryEmbedding,
-                      match_threshold: 0.35,
-                      match_count: 3,
-                      p_user_id: userId
-                    })
 
-                  if (!rpcError && matchedChunks && matchedChunks.length > 0) {
+                if (queryEmbedding) {
+                  // Fetch all user document chunks for client-side cosine similarity search
+                  const chunksSnap = await getDocs(query(
+                    collection(db, 'document_chunks'),
+                    where('user_id', '==', userId)
+                  ))
+
+                  const chunks = chunksSnap.docs.map(d => d.data())
+                  const matchedChunks = chunks
+                    .map((chunk: any) => ({
+                      ...chunk,
+                      similarity: cosineSimilarity(queryEmbedding, chunk.embedding)
+                    }))
+                    .filter(item => item.similarity >= 0.35)
+                    .sort((a, b) => b.similarity - a.similarity)
+                    .slice(0, 3)
+
+                  if (matchedChunks.length > 0) {
                     searchContext = matchedChunks
                       .map((chunk: any) => `[Kaynak: ${chunk.metadata?.page ? `Sayfa ${chunk.metadata.page}` : 'Ders Notu'}]\n${chunk.content}`)
                       .join('\n\n')
@@ -223,19 +204,20 @@ export default async function handler(req: Request): Promise<Response> {
           dynamicSystemPrompt += `\n\n[KULLANICI DERS NOTLARINDAN ALINAN BAĞLAM]\nÖğrencinin yüklediği ders notlarından en ilgili kısımlar aşağıdadır. Soruyu öncelikle bu bağlama dayanarak yanıtla:\n${searchContext}\n\n[HALÜSİNASYON ÖNLEME POLİTİKASI]\nEğer öğrencinin sorusu veya istenen bilgi yukarıdaki bağlamda bulunmuyorsa, KESİNLİKLE dışarıdan bilgi uydurma. Bunun yerine "Bu bilgi kaynaklarınızda bulunamadı." şeklinde net ve kibar bir yanıt dön.`
         }
 
-        // Calculate user response time (stuck duration) for Socratic State Machine (5.5)
+        // Calculate response time
         let responseTimeMs = 0
-        if (activeSessionId && supabaseUrl) {
+        if (activeSessionId && userId !== '00000000-0000-0000-0000-000000000000') {
           try {
-            const { data: lastAssistantMsg } = await supabaseClient
-              .from('messages')
-              .select('created_at')
-              .eq('session_id', activeSessionId)
-              .eq('role', 'assistant')
-              .order('created_at', { ascending: false })
-              .limit(1)
-              .maybeSingle()
-            
+            const messagesSnap = await getDocs(query(
+              collection(db, 'messages'),
+              where('session_id', '==', activeSessionId)
+            ))
+            const assistantMsgs = messagesSnap.docs
+              .map(d => d.data())
+              .filter((m: any) => m.role === 'assistant')
+              .sort((a: any, b: any) => b.created_at.localeCompare(a.created_at))
+
+            const lastAssistantMsg = assistantMsgs[0] || null
             if (lastAssistantMsg) {
               const lastTime = new Date(lastAssistantMsg.created_at).getTime()
               responseTimeMs = Date.now() - lastTime
@@ -245,81 +227,69 @@ export default async function handler(req: Request): Promise<Response> {
           }
         }
 
-        // Log user response event with response time
-        if (activeSessionId && supabaseUrl) {
-          void supabaseClient
-            .from('tutor_events')
-            .insert({
+        // Log user response event
+        if (activeSessionId && userId !== '00000000-0000-0000-0000-000000000000') {
+          void addDoc(collection(db, 'tutor_events'), {
+            user_id: userId,
+            event_type: 'user_response',
+            payload: {
+              session_id: activeSessionId,
+              concept_id: conceptId || null,
+              response_time_ms: responseTimeMs,
+              content_length: userMessage.length,
+              timestamp: new Date().toISOString()
+            },
+            created_at: new Date().toISOString()
+          }).catch(err => {
+            console.error('Error logging user_response tutor event:', err)
+          })
+        }
+
+        // Create new session if not present
+        if (!activeSessionId && userId !== '00000000-0000-0000-0000-000000000000') {
+          try {
+            const sessionRef = await addDoc(collection(db, 'sessions'), {
               user_id: userId,
-              event_type: 'user_response',
+              title: userMessage.slice(0, 40) + (userMessage.length > 40 ? '...' : ''),
+              status: 'active',
+              created_at: new Date().toISOString()
+            })
+            activeSessionId = sessionRef.id
+
+            await writer.write(encoder.encode(`[SESSION_ID:${activeSessionId}]\n`))
+
+            // Log session start event
+            void addDoc(collection(db, 'tutor_events'), {
+              user_id: userId,
+              event_type: 'session_start',
               payload: {
                 session_id: activeSessionId,
                 concept_id: conceptId || null,
-                response_time_ms: responseTimeMs,
-                content_length: userMessage.length,
-                timestamp: new Date().toISOString()
-              }
+                start_time: new Date().toISOString()
+              },
+              created_at: new Date().toISOString()
+            }).catch(err => {
+              console.error('Error logging session_start tutor event:', err)
             })
-            .then(({ error }) => {
-              if (error) console.error('Error logging user_response tutor event:', error)
-            })
-        }
-
-        // Resolve session ID
-        if (!activeSessionId && supabaseUrl) {
-          try {
-            const { data: sessionData, error: sessionErr } = await supabaseClient
-              .from('sessions')
-              .insert({
-                user_id: userId,
-                title: userMessage.slice(0, 40) + (userMessage.length > 40 ? '...' : ''),
-                status: 'active',
-              })
-              .select('id')
-              .single()
-
-            if (sessionErr) throw sessionErr
-            if (sessionData) {
-              activeSessionId = sessionData.id
-              // Send control event to tell frontend about session ID
-              await writer.write(encoder.encode(`[SESSION_ID:${activeSessionId}]\n`))
-
-              // Log session start tutor event
-              void supabaseClient
-                .from('tutor_events')
-                .insert({
-                  user_id: userId,
-                  event_type: 'session_start',
-                  payload: {
-                    session_id: activeSessionId,
-                    concept_id: conceptId || null,
-                    start_time: new Date().toISOString()
-                  }
-                })
-                .then(({ error }) => {
-                  if (error) console.error('Error logging session_start tutor event:', error)
-                })
-            }
           } catch (dbErr) {
-            console.error('Could not create session in Supabase:', dbErr)
+            console.error('Could not create session in Firestore:', dbErr)
           }
         }
 
-        // If session created, store user message in background
-        if (activeSessionId && supabaseUrl) {
-          void supabaseClient
-            .from('messages')
-            .insert({
-              user_id: userId,
-              session_id: activeSessionId,
-              role: 'user',
-              content: userMessage,
-            })
-            .then(({ error }) => {
-              if (error) console.error('Error logging user message:', error)
-            })
+        // Store user message in Firestore
+        if (activeSessionId && userId !== '00000000-0000-0000-0000-000000000000') {
+          void addDoc(collection(db, 'messages'), {
+            user_id: userId,
+            session_id: activeSessionId,
+            role: 'user',
+            content: userMessage,
+            created_at: new Date().toISOString()
+          }).catch(err => {
+            console.error('Error logging user message:', err)
+          })
         }
 
+        // Call LLM
         if (isMockMode) {
           await writer.write(encoder.encode(`[MOCK_SOCRATIC_MODE] `))
           const simulatedResponse = getMockSocraticResponse(userMessage, targetModel)
@@ -361,7 +331,7 @@ export default async function handler(req: Request): Promise<Response> {
           )
         }
 
-        // 10.7: Hallüsinasyon Önleme — hard-code validation layer
+        // Validate Hallucinations
         if (searchContext && completeResponse.length > 20) {
           const isTurkish = /[ğüşıöçĞÜŞİÖÇ]/.test(userMessage) || userMessage.includes('nedir') || userMessage.includes('nasıl')
           const noSourceFound = completeResponse.includes('bulunamadı') || 
@@ -372,6 +342,7 @@ export default async function handler(req: Request): Promise<Response> {
             completeResponse.includes('sayfa') ||
             completeResponse.includes('page') ||
             completeResponse.includes('ders notu')
+
           if (!claimsSource && !noSourceFound) {
             const warningNote = isTurkish
               ? '\n\n> 📖 **Not:** Bu yanıt, yüklediğiniz ders notlarındaki bilgilerle doğrulanamamıştır. Lütfen kendi kaynaklarınızı kontrol ediniz.'
@@ -381,7 +352,7 @@ export default async function handler(req: Request): Promise<Response> {
           }
         }
 
-        // Apply estimation fallback if api returns no tokens
+        // Token Count Fallbacks
         if (promptTokensCount === 0) {
           promptTokensCount = Math.round(userMessage.length / 4)
         }
@@ -389,85 +360,75 @@ export default async function handler(req: Request): Promise<Response> {
           completionTokensCount = Math.round(completeResponse.length / 4)
         }
 
-        // Calculate Cost & Latency
         const latencyMs = Date.now() - startTime
         const cost = calculateCost(promptTokensCount, completionTokensCount, 'deepseek/deepseek-v4-flash')
 
-        console.log(`[AI Log] Latency: ${latencyMs}ms, Prompt Tokens: ${promptTokensCount}, Completion Tokens: ${completionTokensCount}, Cost: $${cost.toFixed(6)}`)
-
-        // Parse hint level from the complete response
         let parsedHintLevel = 0
         const hintMatch = completeResponse.match(/\[HINT_LEVEL:(\d)\]/)
         if (hintMatch) {
           parsedHintLevel = parseInt(hintMatch[1], 10)
         }
 
-        // 4.7: Log to Database
-        if (activeSessionId && supabaseUrl) {
-          void supabaseClient
-            .from('messages')
-            .insert({
-              user_id: userId,
-              session_id: activeSessionId,
-              role: 'assistant',
-              content: completeResponse,
-              raw_response: {
-                model: 'deepseek/deepseek-v4-flash',
-                routed_from: targetModel,
-                is_mock: isMockMode,
-                prompt_tokens: promptTokensCount,
-                completion_tokens: completionTokensCount,
-                latency_ms: latencyMs,
-                pricing_cost: cost,
-                hint_level: parsedHintLevel,
-              },
-              token_cost: cost,
+        // Log assistant message to Firestore
+        if (activeSessionId && userId !== '00000000-0000-0000-0000-000000000000') {
+          void addDoc(collection(db, 'messages'), {
+            user_id: userId,
+            session_id: activeSessionId,
+            role: 'assistant',
+            content: completeResponse,
+            raw_response: {
+              model: 'deepseek/deepseek-v4-flash',
+              routed_from: targetModel,
+              is_mock: isMockMode,
               prompt_tokens: promptTokensCount,
               completion_tokens: completionTokensCount,
               latency_ms: latencyMs,
-            })
-            .then(({ error }) => {
-              if (error) console.error('Error logging assistant message:', error)
-            })
+              pricing_cost: cost,
+              hint_level: parsedHintLevel,
+            },
+            token_cost: cost,
+            prompt_tokens: promptTokensCount,
+            completion_tokens: completionTokensCount,
+            latency_ms: latencyMs,
+            created_at: new Date().toISOString()
+          }).catch(err => {
+            console.error('Error logging assistant message:', err)
+          })
 
-          // Log tutor event for hint shown
+          // Log hint shown
           if (parsedHintLevel > 0) {
-            void supabaseClient
-              .from('tutor_events')
-              .insert({
-                user_id: userId,
-                event_type: 'hint_shown',
-                payload: {
-                  session_id: activeSessionId,
-                  concept_id: conceptId || null,
-                  hint_level: parsedHintLevel,
-                  timestamp: new Date().toISOString()
-                }
-              })
-              .then(({ error }) => {
-                if (error) console.error('Error logging hint_shown tutor event:', error)
-              })
+            void addDoc(collection(db, 'tutor_events'), {
+              user_id: userId,
+              event_type: 'hint_shown',
+              payload: {
+                session_id: activeSessionId,
+                concept_id: conceptId || null,
+                hint_level: parsedHintLevel,
+                timestamp: new Date().toISOString()
+              },
+              created_at: new Date().toISOString()
+            }).catch(err => {
+              console.error('Error logging hint_shown event:', err)
+            })
           }
 
-          // Log tutor event for socratic success (correct resolution)
+          // Log socratic success
           if (parsedHintLevel === 0 && messages && messages.length > 0) {
-            void supabaseClient
-              .from('tutor_events')
-              .insert({
-                user_id: userId,
-                event_type: 'socratic_success',
-                payload: {
-                  session_id: activeSessionId,
-                  concept_id: conceptId || null,
-                  timestamp: new Date().toISOString()
-                }
-              })
-              .then(({ error }) => {
-                if (error) console.error('Error logging socratic_success tutor event:', error)
-              })
+            void addDoc(collection(db, 'tutor_events'), {
+              user_id: userId,
+              event_type: 'socratic_success',
+              payload: {
+                session_id: activeSessionId,
+                concept_id: conceptId || null,
+                timestamp: new Date().toISOString()
+              },
+              created_at: new Date().toISOString()
+            }).catch(err => {
+              console.error('Error logging socratic_success event:', err)
+            })
           }
 
-          // Parse mistake category for error_logs (7.1 & 7.2)
+          // Log error / generate card
           let parsedErrorType: string | null = null
           const errorMatch = completeResponse.match(/\[ERROR_TYPE:(conceptual|procedural|calculation|strategic)\]/)
           if (errorMatch) {
@@ -475,24 +436,19 @@ export default async function handler(req: Request): Promise<Response> {
           }
 
           if (parsedErrorType) {
-            // Log to error_logs table
-            void supabaseClient
-              .from('error_logs')
-              .insert({
-                user_id: userId,
-                concept_id: conceptId || null,
-                error_type: parsedErrorType,
-                raw_user_answer: userMessage,
-                model_feedback: completeResponse.replace(/\[HINT_LEVEL:\d\]|\[ERROR_TYPE:\w+\]/g, '').trim(),
-              })
-              .then(({ error }) => {
-                if (error) console.error('Error logging to error_logs:', error)
-              })
+            void addDoc(collection(db, 'error_logs'), {
+              user_id: userId,
+              concept_id: conceptId || null,
+              error_type: parsedErrorType,
+              raw_user_answer: userMessage,
+              model_feedback: completeResponse.replace(/\[HINT_LEVEL:\d\]|\[ERROR_TYPE:\w+\]/g, '').trim(),
+              created_at: new Date().toISOString()
+            }).catch(err => {
+              console.error('Error logging to error_logs:', err)
+            })
 
-            // Trigger background SRCard Flashcard Generation (7.4)
             if (conceptId) {
               void generateAndSaveSRCard(
-                supabaseClient,
                 userId,
                 conceptId,
                 userMessage,
@@ -543,7 +499,6 @@ function getMockSocraticResponse(message: string, model: string): string {
 }
 
 async function generateAndSaveSRCard(
-  supabaseClient: any,
   userId: string,
   conceptId: string,
   userMessage: string,
@@ -551,11 +506,9 @@ async function generateAndSaveSRCard(
 ): Promise<void> {
   try {
     let conceptName = 'STEM Konusu'
-    const { data: conceptData } = await supabaseClient
-      .from('concepts')
-      .select('name')
-      .eq('id', conceptId)
-      .single()
+    const conceptDocSnap = await getDoc(doc(db, 'concepts', conceptId))
+    const conceptData = conceptDocSnap.exists() ? conceptDocSnap.data() : null
+
     if (conceptData?.name) {
       conceptName = conceptData.name
     }
@@ -598,29 +551,23 @@ Eğitmen Geri Bildirimi: ${modelFeedback}`
       console.error('Error during card generation API call:', apiErr)
     }
 
-    const { error: insertErr } = await supabaseClient
-      .from('sr_cards')
-      .insert({
-        user_id: userId,
-        concept_id: conceptId,
-        front,
-        back,
-        due_at: new Date().toISOString(),
-        difficulty: 5.0,
-        stability: 1.0,
-        retrievability: 1.0,
-        state: 0,
-        reps: 0,
-        lapses: 0
-      })
+    await addDoc(collection(db, 'sr_cards'), {
+      user_id: userId,
+      concept_id: conceptId,
+      front,
+      back,
+      due_at: new Date().toISOString(),
+      difficulty: 5.0,
+      stability: 1.0,
+      retrievability: 1.0,
+      state: 0,
+      reps: 0,
+      lapses: 0,
+      created_at: new Date().toISOString()
+    })
 
-    if (insertErr) {
-      console.error('Error inserting SR card:', insertErr)
-    } else {
-      console.log(`SR card generated and saved successfully for concept: ${conceptName}`)
-    }
+    console.log(`SR card generated and saved successfully for concept: ${conceptName}`)
   } catch (err) {
     console.error('Error in generateAndSaveSRCard:', err)
   }
 }
-

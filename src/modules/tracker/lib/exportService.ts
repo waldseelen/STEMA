@@ -4,8 +4,8 @@
  * TimeSession verilerini CSV ve JSON formatında dışa aktarır.
  */
 
-import type { BackupData, ExportMetadata } from '@/db/types'
-import { listOwnedRows } from '@/lib/cloud/supabaseRepo'
+import type { BackupData, ExportMetadata } from '@/db/time-tracking/types'
+import { listOwnedRows } from '@/lib/cloud/firestoreRepo'
 import {
     trackerGetAllActivities,
     trackerGetAllGoals,
@@ -126,13 +126,13 @@ export async function exportJSON(): Promise<BackupData> {
         activities: activitiesData,
         timeSessions: timeSessionsData,
         runningTimers: runningTimersData,
-        pomodoroConfigs: pomodoroConfigsRaw as unknown as import('@/db/types').PomodoroConfig[],
+        pomodoroConfigs: pomodoroConfigsRaw as unknown as import('@/db/time-tracking/types').PomodoroConfig[],
         habits: [],
         habitLogs: [],
         goals: goalsData,
         rules: rulesData,
         reminders: remindersData,
-        settings: settingsRaw as unknown as import('@/db/types').Setting[],
+        settings: settingsRaw as unknown as import('@/db/time-tracking/types').Setting[],
     }
 }
 

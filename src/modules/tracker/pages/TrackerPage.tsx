@@ -5,9 +5,9 @@ import { motion } from 'framer-motion'
 import { Clock3, Lightbulb, Plus, Timer } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { ActivityGrid } from '../components/ActivityGrid'
-import { PomodoroTimer } from '../components/PomodoroTimer'
-import { RunningTimerBar } from '../components/RunningTimerBar'
+import { ActivityGrid } from '../components/features/ActivityGrid'
+import { PomodoroTimer } from '../components/features/PomodoroTimer'
+import { RunningTimerBar } from '../components/features/RunningTimerBar'
 import { getCurrentSuggestion, type ActivitySuggestion } from '../lib/suggestionEngine'
 
 export function TrackerPage() {

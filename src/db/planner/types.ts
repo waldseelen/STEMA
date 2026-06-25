@@ -30,7 +30,7 @@ export interface DBUnit {
     updatedAt: string
 }
 
-export type TaskStatus = 'todo' | 'in-progress' | 'review' | 'done'
+export type TaskStatus = 'todo' | 'in-progress' | 'review' | 'done' | 'blocked' | 'planning' | 'permits-awaited'
 
 export interface DBTask {
     id: string
@@ -40,7 +40,10 @@ export interface DBTask {
     icon?: string
     status: TaskStatus
     isPriority?: boolean
+    startDateISO?: string
     dueDateISO?: string
+    dependencies?: string[]
+    assignees?: string[]
     completedAt?: string // ISO timestamp when marked done
     tags?: string[]
     note?: string
@@ -69,7 +72,10 @@ export interface DBPersonalTask {
     icon?: string
     status: TaskStatus
     isPriority?: boolean
+    startDateISO?: string
     dueDateISO?: string
+    dependencies?: string[]
+    assignees?: string[]
     completedAt?: string
     note?: string
     order: number

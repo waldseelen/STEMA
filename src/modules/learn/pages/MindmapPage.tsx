@@ -15,7 +15,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css'
 import { Excalidraw } from '@excalidraw/excalidraw'
 import '@excalidraw/excalidraw/index.css'
-import { supabase } from '@/config/supabase'
+import { listOwnedRows, upsertOwnedRow, deleteOwnedRows } from '@/lib/cloud/firestoreRepo'
 import { useAuthStore } from '@/modules/auth/store/authStore'
 import { useLocale } from '@/i18n'
 import {
@@ -62,19 +62,13 @@ export function MindmapPage() {
   // Excalidraw state ref
   const [excalidrawAPI, setExcalidrawAPI] = useState<any>(null)
 
-  // Fetch list of saved mindmaps from Supabase
+  // Fetch list of saved mindmaps from Firestore
   const fetchSavedMindmaps = async () => {
     try {
       const user = useAuthStore.getState().session?.user
       if (!user) return
 
-      const { data, error } = await supabase
-        .from('mindmaps')
-        .select('id, name, nodes, edges, created_at')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
+      const data = await listOwnedRows('mindmaps', { orderBy: 'created_at', ascending: false })
       if (data) setSavedMindmaps(data as SavedMindmapRow[])
     } catch (err) {
       console.error('Error fetching saved mindmaps:', err)
@@ -220,30 +214,19 @@ export function MindmapPage() {
 
       if (selectedMapId) {
         // Update existing
-        const { error } = await supabase
-          .from('mindmaps')
-          .update({
-            name: nameToSave,
-            nodes: nodesToSave,
-            edges: edges
-          })
-          .eq('id', selectedMapId)
-
-        if (error) throw error
+        await upsertOwnedRow('mindmaps', {
+          id: selectedMapId,
+          name: nameToSave,
+          nodes: nodesToSave,
+          edges: edges
+        })
       } else {
         // Insert new
-        const { data, error } = await supabase
-          .from('mindmaps')
-          .insert({
-            user_id: user.id,
-            name: nameToSave,
-            nodes: nodesToSave,
-            edges: edges
-          })
-          .select()
-          .single()
-
-        if (error) throw error
+        const data = await upsertOwnedRow('mindmaps', {
+          name: nameToSave,
+          nodes: nodesToSave,
+          edges: edges
+        })
         if (data) setSelectedMapId(data.id)
       }
 
@@ -286,12 +269,7 @@ export function MindmapPage() {
     if (!confirm(isTr ? 'Bu zihin haritasını silmek istediğinize emin misiniz?' : 'Are you sure you want to delete this mindmap?')) return
 
     try {
-      const { error } = await supabase
-        .from('mindmaps')
-        .delete()
-        .eq('id', id)
-
-      if (error) throw error
+      await deleteOwnedRows('mindmaps', [{ column: 'id', value: id }])
       
       if (selectedMapId === id) {
         setSelectedMapId('')

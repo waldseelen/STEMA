@@ -1,7 +1,7 @@
 /**
- * Auth Store — Supabase Auth & PostgreSQL
+ * Auth Store — Firebase Auth & Firestore
  *
- * Spec 2.2: Email/password yok — sadece Google ve GitHub OAuth (Email desteği fallback/geliştirme amaçlı Supabase ile uyumlu bırakıldı).
+ * Spec 2.2: Email/password yok — sadece Google ve GitHub OAuth (Email desteği fallback/geliştirme amaçlı Firebase ile uyumlu bırakıldı).
  * Spec 2.4: full_name, occupation (text), student_status zorunlu.
  * Spec 2.6: preferred_locale ve preferred_theme profile'a yazılır.
  * Spec 2.7: v1'de ek rol modeli yok.
@@ -9,7 +9,19 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { supabase } from '@/config/supabase'
+import { auth, db, storage, isFirebaseConfigured } from '@/config/firebase'
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  GithubAuthProvider,
+  signOut as fbSignOut,
+  onAuthStateChanged,
+  User as FirebaseUser
+} from 'firebase/auth'
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { clearLocalCacheOwner } from '@/lib/cloud/localCacheOwner'
 import {
   buildProfileCompletionUpdate,
@@ -128,16 +140,14 @@ export const useAuthStore = create<AuthState>()(
       setLoading: (isLoading) => set({ isLoading }),
       setDataBootstrapReady: (dataBootstrapReady) => set({ dataBootstrapReady }),
 
-      // ── Supabase Auth ──────────────────────────────────────────────────────
+      // ── Firebase Auth ──────────────────────────────────────────────────────
       signInWithEmail: async (email, password) => {
         set({ isLoading: true })
         try {
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          })
-          if (error) throw error
-          if (data.session) await applySession(data.session)
+          const userCredential = await signInWithEmailAndPassword(auth, email, password)
+          if (userCredential.user) {
+            await applySession(userCredential.user)
+          }
         } catch (error) {
           captureSecureException(error, { context: 'AuthStore.signInWithEmail', category: 'network' })
           set({ isLoading: false })
@@ -148,12 +158,10 @@ export const useAuthStore = create<AuthState>()(
       signUpWithEmail: async (email, password) => {
         set({ isLoading: true })
         try {
-          const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-          })
-          if (error) throw error
-          if (data.session) await applySession(data.session)
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+          if (userCredential.user) {
+            await applySession(userCredential.user)
+          }
         } catch (error) {
           captureSecureException(error, { context: 'AuthStore.signUpWithEmail', category: 'network' })
           set({ isLoading: false })
@@ -161,16 +169,17 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      signInWithOAuth: async (provider) => {
+      signInWithOAuth: async (providerName) => {
         set({ isLoading: true })
         try {
-          const { error } = await supabase.auth.signInWithOAuth({
-            provider,
-            options: {
-              redirectTo: `${window.location.origin}/auth/callback`,
-            },
-          })
-          if (error) throw error
+          const provider = providerName === 'google' 
+            ? new GoogleAuthProvider() 
+            : new GithubAuthProvider()
+          
+          const result = await signInWithPopup(auth, provider)
+          if (result.user) {
+            await applySession(result.user)
+          }
         } catch (error) {
           captureSecureException(error, { context: 'AuthStore.signInWithOAuth', category: 'network' })
           set({ isLoading: false })
@@ -181,7 +190,7 @@ export const useAuthStore = create<AuthState>()(
       signOut: async () => {
         set({ isLoading: true })
         try {
-          await supabase.auth.signOut()
+          await fbSignOut(auth)
           clearLastOAuthProvider()
           clearLocalCacheOwner()
           set({
@@ -203,24 +212,37 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      // ── Fetch profile from PostgreSQL ──────────────────────────────────────
+      // ── Fetch profile from Firestore ──────────────────────────────────────
       fetchProfile: async (userOverride) => {
         const user = userOverride ?? get().user
         if (!user) return null
 
-        try {
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single()
+        if (!isFirebaseConfigured) {
+          try {
+            const raw = localStorage.getItem(`planex-mock-profile-${user.id}`)
+            if (!raw) {
+              set({ profile: null })
+              return null
+            }
+            const profile = mapProfileRow(JSON.parse(raw))
+            set({ profile })
+            return profile
+          } catch {
+            set({ profile: null })
+            return null
+          }
+        }
 
-          if (error || !data) {
+        try {
+          const docRef = doc(db, 'profiles', user.id)
+          const docSnap = await getDoc(docRef)
+
+          if (!docSnap.exists()) {
             set({ profile: null })
             return null
           }
 
-          const profile = mapProfileRow(data as Record<string, unknown>)
+          const profile = mapProfileRow(docSnap.data() as Record<string, unknown>)
           set({ profile })
           return profile
         } catch (error) {
@@ -255,7 +277,7 @@ export const useAuthStore = create<AuthState>()(
             email: user.email ?? '',
             full_name: user.displayName ?? '',
             avatar_url: user.photoURL ?? null,
-            plan: 'free' as const,
+            plan: 'free',
             profile_completed: false,
             onboarding_completed: false,
             preferred_locale: 'tr',
@@ -263,15 +285,18 @@ export const useAuthStore = create<AuthState>()(
             created_at: now,
             updated_at: now,
           }
-          const { data, error } = await supabase
-            .from('profiles')
-            .upsert(newProfileRow, { onConflict: 'id' })
-            .select()
-            .single()
 
-          if (error) throw error
+          if (!isFirebaseConfigured) {
+            localStorage.setItem(`planex-mock-profile-${user.id}`, JSON.stringify(newProfileRow))
+            const newProfile = mapProfileRow(newProfileRow as Record<string, unknown>)
+            set({ profile: newProfile })
+            return newProfile
+          }
 
-          const newProfile = mapProfileRow(data as Record<string, unknown>)
+          const docRef = doc(db, 'profiles', user.id)
+          await setDoc(docRef, newProfileRow, { merge: true })
+
+          const newProfile = mapProfileRow(newProfileRow as Record<string, unknown>)
           set({ profile: newProfile })
           return newProfile
         } catch (error) {
@@ -299,13 +324,23 @@ export const useAuthStore = create<AuthState>()(
 
         const dbUpdates = buildProfilePatch(normalizedUpdates)
         dbUpdates.updated_at = new Date().toISOString()
-        try {
-          const { error } = await supabase
-            .from('profiles')
-            .update(dbUpdates)
-            .eq('id', user.id)
 
-          if (error) throw error
+        if (!isFirebaseConfigured) {
+          try {
+            const raw = localStorage.getItem(`planex-mock-profile-${user.id}`)
+            const currentObj = raw ? JSON.parse(raw) : {}
+            const merged = { ...currentObj, ...dbUpdates }
+            localStorage.setItem(`planex-mock-profile-${user.id}`, JSON.stringify(merged))
+            set({ profile: { ...profile, ...normalizedUpdates } })
+          } catch (err) {
+            console.error('Failed to update mock profile:', err)
+          }
+          return
+        }
+
+        try {
+          const docRef = doc(db, 'profiles', user.id)
+          await updateDoc(docRef, dbUpdates as any)
 
           const refreshedProfile = await get().fetchProfile(user)
           if (!refreshedProfile) {
@@ -329,13 +364,37 @@ export const useAuthStore = create<AuthState>()(
 
         const updates = buildProfileCompletionUpdate(input)
         updates.updated_at = new Date().toISOString()
-        try {
-          const { error } = await supabase
-            .from('profiles')
-            .update(updates)
-            .eq('id', user.id)
 
-          if (error) throw error
+        if (!isFirebaseConfigured) {
+          try {
+            const raw = localStorage.getItem(`planex-mock-profile-${user.id}`)
+            const currentObj = raw ? JSON.parse(raw) : {}
+            const merged = { ...currentObj, ...updates, profile_completed: true }
+            localStorage.setItem(`planex-mock-profile-${user.id}`, JSON.stringify(merged))
+
+            if (ensuredProfile) {
+              set({
+                profile: {
+                  ...(ensuredProfile as UserProfile),
+                  fullName: updates.full_name ?? ensuredProfile.fullName,
+                  occupation: updates.occupation ?? ensuredProfile.occupation,
+                  studentStatus: updates.student_status as StudentStatus,
+                  profileCompleted: true,
+                  school: (updates.school as string | null) ?? undefined,
+                  department: (updates.department as string | null) ?? undefined,
+                  grade: (updates.grade as string | null) ?? undefined,
+                },
+              })
+            }
+          } catch (err) {
+            console.error('Failed to complete mock profile:', err)
+          }
+          return
+        }
+
+        try {
+          const docRef = doc(db, 'profiles', user.id)
+          await updateDoc(docRef, updates as any)
 
           const refreshedProfile = await get().fetchProfile(user)
           if (!refreshedProfile && ensuredProfile) {
@@ -367,13 +426,22 @@ export const useAuthStore = create<AuthState>()(
         const { user, profile } = get()
         if (!user) return
 
-        try {
-          const { error } = await supabase
-            .from('profiles')
-            .update({ onboarding_completed: true, updated_at: new Date().toISOString() })
-            .eq('id', user.id)
+        if (!isFirebaseConfigured) {
+          try {
+            const raw = localStorage.getItem(`planex-mock-profile-${user.id}`)
+            const currentObj = raw ? JSON.parse(raw) : {}
+            const merged = { ...currentObj, onboarding_completed: true, updated_at: new Date().toISOString() }
+            localStorage.setItem(`planex-mock-profile-${user.id}`, JSON.stringify(merged))
+            set({ profile: { ...(profile as UserProfile), onboardingCompleted: true } })
+          } catch (err) {
+            console.error('Failed to complete mock onboarding:', err)
+          }
+          return
+        }
 
-          if (error) throw error
+        try {
+          const docRef = doc(db, 'profiles', user.id)
+          await updateDoc(docRef, { onboarding_completed: true, updated_at: new Date().toISOString() })
           set({ profile: { ...(profile as UserProfile), onboardingCompleted: true } })
         } catch (error) {
           captureSecureException(error, {
@@ -389,13 +457,22 @@ export const useAuthStore = create<AuthState>()(
         const { user, profile } = get()
         if (!user || !profile) return
 
-        try {
-          const { error } = await supabase
-            .from('profiles')
-            .update({ onboarding_completed: false, updated_at: new Date().toISOString() })
-            .eq('id', user.id)
+        if (!isFirebaseConfigured) {
+          try {
+            const raw = localStorage.getItem(`planex-mock-profile-${user.id}`)
+            const currentObj = raw ? JSON.parse(raw) : {}
+            const merged = { ...currentObj, onboarding_completed: false, updated_at: new Date().toISOString() }
+            localStorage.setItem(`planex-mock-profile-${user.id}`, JSON.stringify(merged))
+            set({ profile: { ...profile, onboardingCompleted: false } })
+          } catch (err) {
+            console.error('Failed to restart mock onboarding:', err)
+          }
+          return
+        }
 
-          if (error) throw error
+        try {
+          const docRef = doc(db, 'profiles', user.id)
+          await updateDoc(docRef, { onboarding_completed: false, updated_at: new Date().toISOString() })
           set({ profile: { ...profile, onboardingCompleted: false } })
         } catch (error) {
           captureSecureException(error, {
@@ -421,20 +498,24 @@ export const useAuthStore = create<AuthState>()(
         }
 
         const extension = fileValidation.extension
-        const path = `${user.id}/avatar.${extension}`
+        const path = `avatars/${user.id}/avatar.${extension}`
+
+        if (!isFirebaseConfigured) {
+          return new Promise((resolve) => {
+            const reader = new FileReader()
+            reader.onloadend = async () => {
+              const dataUrl = reader.result as string
+              await get().updateProfile({ avatarUrl: dataUrl })
+              resolve(dataUrl)
+            }
+            reader.readAsDataURL(file)
+          })
+        }
+
         try {
-          const { error: uploadError } = await supabase.storage
-            .from('avatars')
-            .upload(path, file, {
-              upsert: true,
-              cacheControl: '3600',
-            })
-
-          if (uploadError) throw uploadError
-
-          const { data: { publicUrl } } = supabase.storage
-            .from('avatars')
-            .getPublicUrl(path)
+          const avatarRef = ref(storage, path)
+          await uploadBytes(avatarRef, file)
+          const publicUrl = await getDownloadURL(avatarRef)
 
           await get().updateProfile({ avatarUrl: publicUrl })
           return publicUrl
@@ -454,13 +535,22 @@ export const useAuthStore = create<AuthState>()(
         if (!user || !profile) return
         if (!isSupportedLocale(locale) || !isSupportedTheme(theme)) return
 
-        try {
-          const { error } = await supabase
-            .from('profiles')
-            .update({ preferred_locale: locale, preferred_theme: theme, updated_at: new Date().toISOString() })
-            .eq('id', user.id)
+        if (!isFirebaseConfigured) {
+          try {
+            const raw = localStorage.getItem(`planex-mock-profile-${user.id}`)
+            const currentObj = raw ? JSON.parse(raw) : {}
+            const merged = { ...currentObj, preferred_locale: locale, preferred_theme: theme, updated_at: new Date().toISOString() }
+            localStorage.setItem(`planex-mock-profile-${user.id}`, JSON.stringify(merged))
+            set({ profile: { ...profile, preferredLocale: locale, preferredTheme: theme } })
+          } catch (err) {
+            console.error('Failed to sync mock profile preferences:', err)
+          }
+          return
+        }
 
-          if (error) throw error
+        try {
+          const docRef = doc(db, 'profiles', user.id)
+          await updateDoc(docRef, { preferred_locale: locale, preferred_theme: theme, updated_at: new Date().toISOString() })
           set({ profile: { ...profile, preferredLocale: locale, preferredTheme: theme } })
         } catch (error) {
           captureSecureException(error, {
@@ -490,8 +580,7 @@ export const useAuthStore = create<AuthState>()(
 )
 
 /**
- * Auth state listener — Supabase session değişikliklerini dinler.
- * İlk bootstrap render öncesi çözülür, component katmanı sadece listener bağlar.
+ * Auth state listener — Firebase session değişikliklerini dinler.
  */
 let unsubscribeAuthListener: (() => void) | null = null
 let authBootstrapPromise: Promise<void> | null = null
@@ -533,24 +622,25 @@ function setUnauthenticatedState() {
   })
 }
 
-async function applySession(sbSession: any) {
+async function applySession(fbUser: FirebaseUser | null) {
   const store = useAuthStore.getState()
 
-  if (!sbSession || !sbSession.user) {
+  if (!fbUser) {
     setUnauthenticatedState()
     return
   }
 
-  const sbUser = sbSession.user
   const mappedUser: User = {
-    id: sbUser.id,
-    email: sbUser.email,
-    displayName: sbUser.user_metadata?.full_name || sbUser.user_metadata?.name || undefined,
-    photoURL: sbUser.user_metadata?.avatar_url || undefined,
+    id: fbUser.uid,
+    email: fbUser.email || undefined,
+    displayName: fbUser.displayName || undefined,
+    photoURL: fbUser.photoURL || undefined,
   }
 
+  const token = await fbUser.getIdToken().catch(() => 'mock-session-token')
+
   const dummySession: Session = {
-    accessToken: sbSession.access_token,
+    accessToken: token,
     user: mappedUser,
   }
 
@@ -566,23 +656,26 @@ export async function ensureInitialAuthBootstrap() {
     return authBootstrapPromise
   }
 
-  authBootstrapPromise = (async () => {
+  authBootstrapPromise = new Promise<void>((resolve) => {
     const store = useAuthStore.getState()
     store.setLoading(true)
 
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      await applySession(session)
-    } catch (error) {
-      captureSecureException(error, {
-        context: 'AuthStore.bootstrap',
-        category: 'network',
-      })
-      setUnauthenticatedState()
-    } finally {
-      useAuthStore.setState({ authInitialized: true, isLoading: false })
-    }
-  })()
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      unsubscribe() // Run once for bootstrap
+      try {
+        await applySession(user)
+      } catch (error) {
+        captureSecureException(error, {
+          context: 'AuthStore.bootstrap',
+          category: 'network',
+        })
+        setUnauthenticatedState()
+      } finally {
+        useAuthStore.setState({ authInitialized: true, isLoading: false })
+        resolve()
+      }
+    })
+  })
 
   return authBootstrapPromise
 }
@@ -596,26 +689,24 @@ export function initAuthListener() {
 
   void ensureInitialAuthBootstrap()
 
-  const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
     const store = useAuthStore.getState()
     store.setLoading(true)
 
-    void (async () => {
-      try {
-        await applySession(session)
-      } catch (error) {
-        captureSecureException(error, {
-          context: 'AuthStore.stateSync',
-          category: 'network',
-        })
-      } finally {
-        useAuthStore.setState({ authInitialized: true, isLoading: false })
-      }
-    })()
+    try {
+      await applySession(user)
+    } catch (error) {
+      captureSecureException(error, {
+        context: 'AuthStore.stateSync',
+        category: 'network',
+      })
+    } finally {
+      useAuthStore.setState({ authInitialized: true, isLoading: false })
+    }
   })
 
   unsubscribeAuthListener = () => {
-    subscription.unsubscribe()
+    unsubscribe()
     unsubscribeAuthListener = null
   }
 

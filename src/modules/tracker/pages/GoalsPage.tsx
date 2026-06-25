@@ -1,13 +1,13 @@
 import { useActiveActivities } from '@/db/time-tracking/queries/activityQueries'
 import { useGoalsWithProgress } from '@/db/time-tracking/queries/goalQueries'
-import type { Goal } from '@/db/types'
+import type { Goal } from '@/db/time-tracking/types'
 import { useTranslations } from '@/i18n'
 import { ArrowLeft, Inbox, Plus, Target } from 'lucide-react'
 import { useCallback, useMemo, useState, lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
-import { GoalCard } from '../components/GoalCard'
+import { GoalCard } from '../components/ui/GoalCard'
 
-const GoalEditModal = lazy(() => import('../components/GoalEditModal').then(m => ({ default: m.GoalEditModal })))
+const GoalEditModal = lazy(() => import('../components/features/GoalEditModal').then(m => ({ default: m.GoalEditModal })))
 
 export function GoalsPage() {
     const t = useTranslations(['common', 'tracker'])

@@ -11,7 +11,7 @@
  *   resumeTimer → pausedAt sil, startedAt = now
  */
 
-import type { RunningTimer } from '@/db/types'
+import type { RunningTimer } from '@/db/time-tracking/types'
 import { invalidateTables } from '@/lib/cloud/queryInvalidation'
 import {
     trackerCreateRunningTimer,

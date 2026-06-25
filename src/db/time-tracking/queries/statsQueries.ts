@@ -11,7 +11,7 @@ import {
     trackerGetSessionsByDateRange,
 } from '@/lib/cloud/trackerRepo'
 import { useSupabaseQuery } from '@/shared/hooks/useSupabaseQuery'
-import type { Activity } from '../../types'
+import type { Activity } from '../types'
 
 // ============================================
 // Tipler

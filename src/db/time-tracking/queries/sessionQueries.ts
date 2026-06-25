@@ -15,7 +15,7 @@ import {
     trackerUpdateSession,
 } from '@/lib/cloud/trackerRepo'
 import { useSupabaseQuery } from '@/shared/hooks/useSupabaseQuery'
-import type { TimeSession } from '../../types'
+import type { TimeSession } from '../types'
 
 // ============================================
 // Tarih Yardımcıları

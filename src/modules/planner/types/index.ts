@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 // ================== PLANNER TYPES ==================
 
-export const TaskStatusSchema = z.enum(['todo', 'in-progress', 'review', 'done']);
+export const TaskStatusSchema = z.enum(['todo', 'in-progress', 'review', 'done', 'blocked', 'planning', 'permits-awaited']);
 export type TaskStatus = z.infer<typeof TaskStatusSchema>;
 
 export const TaskSchema = z.object({
@@ -10,7 +10,10 @@ export const TaskSchema = z.object({
     text: z.string().max(500),
     status: TaskStatusSchema,
     isPriority: z.boolean().optional(),
+    startDateISO: z.string().optional(),
     dueDateISO: z.string().optional(),
+    dependencies: z.array(z.string()).optional(),
+    assignees: z.array(z.string()).optional(),
     tags: z.array(z.string()).optional(),
     note: z.string().optional(),
     createdAt: z.string(),

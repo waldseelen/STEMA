@@ -9,7 +9,7 @@ import {
     trackerGetRunningTimers,
 } from '@/lib/cloud/trackerRepo'
 import { useSupabaseQuery } from '@/shared/hooks/useSupabaseQuery'
-import type { RunningTimer } from '../../types'
+import type { RunningTimer } from '../types'
 
 // ============================================
 // Async Queries

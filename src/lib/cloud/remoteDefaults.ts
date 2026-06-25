@@ -3,7 +3,7 @@ import {
     DEFAULT_POMODORO_CONFIG,
     DEFAULT_SETTINGS_DATA,
 } from '@/config/defaults'
-import { listOwnedRows, upsertOwnedRows } from './supabaseRepo'
+import { listOwnedRows, upsertOwnedRows } from './firestoreRepo'
 
 export async function ensureRemoteUserDefaults(): Promise<{
     seededCategories: boolean
@@ -61,7 +61,7 @@ export async function ensureRemoteUserDefaults(): Promise<{
             DEFAULT_SETTINGS_DATA.map((setting, index) => ({
                 id: `settings-${index}`, // Unique ID for Firestore document
                 key: setting.key,
-                value: setting.value as import('@/types/supabase').Json,
+                value: setting.value as any,
             })),
             { onConflict: 'user_id,key' },
         )
